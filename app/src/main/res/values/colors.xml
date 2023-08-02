@@ -4,4 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="black_purple">#771F98</color>
     <color name="white_purple">#C141F1</color>
+    <color name="forget_password">#993F3F</color>
 </resources>
