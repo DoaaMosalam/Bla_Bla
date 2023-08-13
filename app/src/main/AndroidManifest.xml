@@ -13,10 +13,12 @@
         android:theme="@style/Theme.BlaBla"
         tools:targetApi="31">
         <activity
+            android:name=".HomeActivity"
+            android:exported="false" />
+        <activity
             android:name=".SplashScreen"
             android:exported="true"
             android:theme="@style/SplashTheme">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,8 +26,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LogingActivity"
-            android:exported="true">
+            android:name=".util.LoginActivity"
+            android:exported="false">
 
         </activity>
     </application>

@@ -1,11 +1,12 @@
-package com.CodeNinja.blabla
+package com.holecode.blabla
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 
-class LogingActivity : AppCompatActivity() {
+
+class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_loging)
+        setContentView(R.layout.activity_home)
     }
 }

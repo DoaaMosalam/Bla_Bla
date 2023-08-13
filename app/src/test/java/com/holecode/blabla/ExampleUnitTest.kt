@@ -1,4 +1,4 @@
-package com.CodeNinja.blabla
+package com.pro_ninja.blabla
 
 import org.junit.Test
 

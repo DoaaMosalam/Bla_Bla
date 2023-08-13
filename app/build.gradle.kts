@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.CodeNinja.blabla"
+    namespace = "com.holecode.blabla"
     compileSdk = 33
 
     defaultConfig {
-        applicationId = "com.CodeNinja.blabla"
+        applicationId = "com.holecode.blabla"
         minSdk = 25
         targetSdk = 33
         versionCode = 1
@@ -34,9 +34,11 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
     buildFeatures{
-        dataBinding = true
+        dataBinding=true
     }
+
 }
 
 dependencies {
@@ -47,13 +49,17 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     //firebase
     implementation("com.google.firebase:firebase-auth-ktx:22.1.1")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.7.0")
+    implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
+    implementation("com.google.firebase:firebase-database-ktx:20.2.2")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     //coroutines
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
-
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    //Glide library
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
 
 }

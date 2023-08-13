@@ -1,4 +1,4 @@
-package com.CodeNinja.blabla
+package com.pro_ninja.blabla
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

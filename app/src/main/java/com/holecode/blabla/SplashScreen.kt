@@ -1,9 +1,12 @@
-package com.CodeNinja.blabla
+package com.holecode.blabla
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.constraintlayout.motion.widget.MotionLayout
+import com.holecode.blabla.R
+import com.holecode.blabla.util.LoginActivity
+
 
 class SplashScreen : AppCompatActivity() {
 //    lateinit var  binding:ActivitySplashScreenBinding
@@ -26,7 +29,7 @@ class SplashScreen : AppCompatActivity() {
         }
 
         override fun onTransitionCompleted(motionLayout: MotionLayout?, currentId: Int) {
-            startActivity(Intent(this@SplashScreen,LogingActivity::class.java))
+            startActivity(Intent(this@SplashScreen, LoginActivity::class.java))
             finish()
         }
 
@@ -37,7 +40,6 @@ class SplashScreen : AppCompatActivity() {
             progress: Float) {
 
         }
-
     })
     }
 }
