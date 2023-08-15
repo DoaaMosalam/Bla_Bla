@@ -16,7 +16,7 @@
             android:name=".HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".SplashScreen"
+            android:name=".util.SplashScreen"
             android:exported="true"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".util.LoginActivity"
+            android:name=".Auth.LoginActivity"
             android:exported="false">
 
         </activity>

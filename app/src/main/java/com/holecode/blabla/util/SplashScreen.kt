@@ -1,21 +1,22 @@
-package com.holecode.blabla
+package com.holecode.blabla.util
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.constraintlayout.motion.widget.MotionLayout
+import com.holecode.blabla.Auth.LoginActivity
 import com.holecode.blabla.R
-import com.holecode.blabla.util.LoginActivity
+import com.holecode.blabla.databinding.ActivitySplashScreenBinding
 
 
 class SplashScreen : AppCompatActivity() {
-//    lateinit var  binding:ActivitySplashScreenBinding
+    lateinit var  binding: ActivitySplashScreenBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        binding = ActivitySplashScreenBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_splash_screen)
-    val motionLayout :MotionLayout =findViewById(R.id.motionLayout)
-    motionLayout.addTransitionListener(object : MotionLayout.TransitionListener {
+        binding = ActivitySplashScreenBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+//    val motionLayout :MotionLayout =findViewById(R.id.motionLayout)
+    binding.motionLayout.addTransitionListener(object : MotionLayout.TransitionListener {
         override fun onTransitionStarted(motionLayout: MotionLayout?, startId: Int, endId: Int) {
 
         }

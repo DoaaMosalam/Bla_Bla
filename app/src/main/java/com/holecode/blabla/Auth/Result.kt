@@ -1,4 +1,4 @@
-package com.holecode.blabla
+package com.holecode.blabla.Auth
 
 sealed class Result<out T>{
     data class Success<out T>(val data: T) : Result<T>()

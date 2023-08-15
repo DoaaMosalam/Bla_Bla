@@ -1,4 +1,4 @@
-package com.holecode.blabla
+package com.holecode.blabla.Auth
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
@@ -12,6 +12,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.holecode.blabla.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
