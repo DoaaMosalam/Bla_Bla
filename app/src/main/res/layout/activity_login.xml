@@ -30,7 +30,7 @@
                     android:id="@+id/txt_welcome"
                     android:layout_width="229dp"
                     android:layout_height="34dp"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="4dp"
                     android:fontFamily="sans-serif-black"
                     android:gravity="center"
                     android:text="@string/hello_welcome_back"
@@ -63,7 +63,7 @@
                     android:ems="10"
                     android:hint="@string/temail_address"
                     android:inputType="textEmailAddress"
-                    android:padding="10dp"
+                    android:padding="15dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.491"
@@ -71,23 +71,32 @@
                     app:layout_constraintTop_toBottomOf="@+id/imageView"
                     app:layout_constraintVertical_bias="0.0" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/ed_password"
-                    android:layout_width="340dp"
-                    android:layout_height="57dp"
-                    android:autofillHints="Password"
-                    android:background="@drawable/input_info"
-                    android:drawableStart="@drawable/baseline_lock"
-                    android:ems="10"
-                    android:hint="@string/tpassword"
-                    android:inputType="numberPassword"
-                    android:padding="10dp"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/ed_email"
-                    app:layout_constraintVertical_bias="0.126"
-                    app:passwordToggleEnabled="true" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:passwordToggleEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/ed_password"
+                            android:layout_width="340dp"
+                            android:layout_height="57dp"
+                            android:autofillHints="Password"
+                            android:background="@drawable/input_info"
+                            android:ems="10"
+                            android:hint="@string/tpassword"
+                            android:inputType="textPassword"
+                            android:drawableStart="@drawable/baseline_lock"
+                            android:padding="10dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/ed_email"
+                            app:layout_constraintVertical_bias="0.126" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
                     android:id="@+id/btn_forgotPassword"

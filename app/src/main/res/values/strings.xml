@@ -2,7 +2,7 @@
     <string name="app_name">Bla Bla</string>
     <string name="hello_welcome_back">Hello, Welcome Bla Bla </string>
     <string name="happy_to_see_you_again_to_use_your_naccount_please_login_first">Happy to see you , to use your\naccount please login first.</string>
-    <string name="temail_address">\tEmail Address</string>
+    <string name="temail_address">\tEmail </string>
     <string name="tpassword">\tPassword</string>
     <string name="forgot_password">Forgot Password</string>
     <string name="login">Login</string>
