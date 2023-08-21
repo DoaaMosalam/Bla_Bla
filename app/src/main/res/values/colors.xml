@@ -6,4 +6,5 @@
     <color name="white_purple">#C141F1</color>
     <color name="forget_password">#993F3F</color>
     <color name="light_gray">#BBB7B7</color>
+    <color name="search_gray">#F1F1F1</color>
 </resources>

@@ -70,5 +70,7 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     //Glide library
     implementation ("com.github.bumptech.glide:glide:4.15.1")
+    // circle Image
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
 
 }

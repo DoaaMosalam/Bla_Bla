@@ -10,11 +10,18 @@
     <string name="image_welcome">image Welcome</string>
     <string name="title_activity_maps">MapsActivity</string>
 
+    <string name="home">Chats</string>
+    <string name="add_friends">Friends</string>
+    <string name="setting">Setting</string>
+
 
     <string name="facebook_app_id">1348788842516419</string>
     <string name="fb_login_protocol_scheme">fb1348788842516419</string>
     <string name="facebook_client_token">8ecaeed3faad339fdc2cbdf282404576</string>
-
+    <string name="search_chat">Search Chat</string>
+    <string name="call">Call</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

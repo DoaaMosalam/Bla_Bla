@@ -1,9 +1,7 @@
 package com.holecode.blabla.Auth
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.facebook.AccessToken
@@ -17,22 +15,22 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.holecode.blabla.HomeActivity
 import com.holecode.blabla.R
 import com.holecode.blabla.databinding.ActivityLoginBinding
-import kotlinx.coroutines.CoroutineScope
+import com.holecode.blabla.util.HomeActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 const val REQUEST_CODE_SIGN_IN = 0
-
-class LoginActivity : AppCompatActivity() {
+class LoginActivity :AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var authManager: AuthManager
+     lateinit var authManager :AuthManager
     private lateinit var auth: FirebaseAuth
     private lateinit var callbackManager: CallbackManager
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
@@ -41,7 +39,6 @@ class LoginActivity : AppCompatActivity() {
         // Initialize Facebook Login
         callbackManager = CallbackManager.Factory.create()
 
-        // method o register new user authentication.
         binding.apply {
             binding.btnLogin.setOnClickListener {
                 lifecycleScope.launch {
@@ -56,93 +53,33 @@ class LoginActivity : AppCompatActivity() {
                         authManager.registerUser(
                             binding.edEmail.text.toString(),
                             binding.edPassword.text.toString())
-                        authManager.sendEmailVerification()
                     }
-                    val result = authManager.registerUser(binding.edEmail.text.toString(), binding.edPassword.text.toString())
-                    when (result) {
-                        is Result.Success -> {
-                            val message = result.toString()
-                            Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT)
-                                .show()
-                            // Open Gmail app
-                            openGmail()
-                        }
-
-                        is Result.Error -> {
-                            // Password reset email failed
-                            val errorMessage = result.toString()
-                            Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                    }
-                    openGmail()
+                    authManager.sendEmailVerification()
                 }
+                navigateToHomePage()
             }
+
             //method to forgetPassword user.
             binding.btnForgotPassword.setOnClickListener {
                 lifecycleScope.launch {
                     // call method forgetPassword from class AuthManager
-                    val result = authManager.forgetPassword(binding.edEmail.text.toString())
-                    when (result) {
-                        is Result.Success -> {
-                            val message = result.toString()
-                            Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT)
-                                .show()
-                            // Open Gmail app
-                            openGmail()
-                        }
-
-                        is Result.Error -> {
-                            // Password reset email failed
-                            val errorMessage = result.toString()
-                            Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                    }
-                    openGmail()
+                   authManager.forgetPassword(binding.edEmail.text.toString().trim())
                 }
             }
             binding.btnGmail.setOnClickListener {
                 lifecycleScope.launch {
-                    authenticateWithGoogle()
+                   authenticateWithGoogle()
                 }
             }
             binding.btnFacebook.setOnClickListener {
                 lifecycleScope.launch {
-                    authenticationWithFacebook()
+               authenticationWithFacebook()
                 }
             }
 
         }
     }
 
-    // Add method to intent between this class anther class
-    private fun navigateToHomePage() {
-        lifecycleScope.launch {
-            val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
-    }
-
-    private fun openGmail() {
-        lifecycleScope.launch {
-            try {
-                // Open Gmail app
-                val intent = Intent(Intent.ACTION_VIEW).apply {
-                    data = Uri.parse("https://mail.google.com")
-                }
-
-                if (intent.resolveActivity(packageManager) != null) {
-                    startActivity(intent)
-                }
-            } catch (e: Exception) {
-                Result.Error(e)
-            }
-
-        }
-
-    }
 
     // Add method to authentication with mail by google
     private fun authenticateWithGoogle() {
@@ -156,22 +93,22 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun googleAuthForFirebase(account: GoogleSignInAccount) {
+    private suspend fun googleAuthForFirebase(account: GoogleSignInAccount) :Result<Boolean> = withContext(Dispatchers.IO){
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                auth.signInWithCredential(credential).await()
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@LoginActivity, e.message, Toast.LENGTH_SHORT).show()
-                }
+        try {
+            auth.signInWithCredential(credential).await()
+            Result.Success(true)
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+//                    Toast.makeText(this@AuthManager, e.message, Toast.LENGTH_SHORT).show()
+                Result.Error(e)
             }
         }
 
     }
 
     // Add method to authentication with facebook
-    private fun authenticationWithFacebook() {
+    private suspend fun authenticationWithFacebook() {
         callbackManager = CallbackManager.Factory.create()
         val accessToken = AccessToken.getCurrentAccessToken()
         if (accessToken != null && !accessToken.isExpired) {
@@ -204,15 +141,26 @@ class LoginActivity : AppCompatActivity() {
         if (requestCode == REQUEST_CODE_SIGN_IN) {
             val account = GoogleSignIn.getSignedInAccountFromIntent(data).result
             account?.let {
-                googleAuthForFirebase(it)
+                lifecycleScope.launch{
+                    googleAuthForFirebase(it)
+                }
+
             }
         }
     }
 
+    // Add method to intent between this class anther class
+    private fun navigateToHomePage() {
+        lifecycleScope.launch {
+            val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+    }
+
     //Add method to start home page when user finish auth.
-//    override fun onStart() {
-//        super.onStart()
-//
-//        navigateToHomePage()
-//    }
+    override fun onStart() {
+        super.onStart()
+        navigateToHomePage()
+    }
 }
