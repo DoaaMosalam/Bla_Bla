@@ -1,23 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
     </data>
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".fragbottomnav.SettingFragment">
+        tools:context=".fragbottomnav.SettingFragment"
+        android:background="@color/light_gray">
 
-        <!-- TODO: Update blank fragment layout -->
-        <TextView
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text = "Setting Fragment"
-            android:gravity="center"
-            android:textColor="@color/black"/>
+            android:layout_height="wrap_content"
+            android:background="@color/light_gray"
+            app:cardCornerRadius="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    </FrameLayout>
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/image_setting"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_margin="25dp"
+                android:src="@drawable/baseline_account_circle_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/ed_settingName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="30dp"
+                android:background="@drawable/input_info"
+                android:hint="Type your name"
+                android:inputType="text"
+                android:padding="15dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.cardview.widget.CardView>
+
+
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/input_info"
+            android:drawableStart="@drawable/account_circle_24"
+            android:drawableEnd="@drawable/baseline_keyboard_arrow_right_24"
+            android:gravity="left"
+            android:padding="10dp"
+            android:src="@drawable/account_circle_24"
+            android:text="  Profile"
+            android:textColor="@color/black"
+            android:textStyle="bold|italic"
+            android:textAllCaps="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/cardView"
+            app:layout_constraintVertical_bias="0.233" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/input_info"
+            android:drawableStart="@drawable/key_24"
+            android:drawableEnd="@drawable/baseline_keyboard_arrow_right_24"
+            android:gravity="left"
+            android:padding="10dp"
+            android:text="   Account"
+            android:textStyle="bold|italic"
+            android:textAllCaps="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.342" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

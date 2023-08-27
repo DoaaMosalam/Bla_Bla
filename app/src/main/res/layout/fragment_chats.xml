@@ -7,12 +7,10 @@
 
     </data>
 
-    <FrameLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".fragbottomnav.ChatsFragment">
-
-        <!-- TODO: Update blank fragment layout -->
         <EditText
             android:id="@+id/edit_searchItem"
             android:layout_width="match_parent"
@@ -31,5 +29,5 @@
             tools:ignore="Autofill,MissingConstraints"
             tools:layout_editor_absoluteX="34dp" />
 
-    </FrameLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

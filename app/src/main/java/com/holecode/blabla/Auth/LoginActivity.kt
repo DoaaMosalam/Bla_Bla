@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.holecode.blabla.R
 import com.holecode.blabla.databinding.ActivityLoginBinding
+import com.holecode.blabla.setting.ProfileActivity
 import com.holecode.blabla.util.HomeActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -152,7 +153,7 @@ class LoginActivity :AppCompatActivity() {
     // Add method to intent between this class anther class
     private fun navigateToHomePage() {
         lifecycleScope.launch {
-            val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+            val intent = Intent(this@LoginActivity, ProfileActivity::class.java)
             startActivity(intent)
             finish()
         }
