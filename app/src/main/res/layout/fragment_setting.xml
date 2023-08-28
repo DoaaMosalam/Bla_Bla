@@ -40,11 +40,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginStart="30dp"
-                android:background="@drawable/input_info"
-                android:hint="Type your name"
+                android:layout_marginStart="35dp"
                 android:inputType="text"
                 android:padding="15dp"
+                android:text="your name"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -52,29 +51,6 @@
 
         </androidx.cardview.widget.CardView>
 
-
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_profile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:background="@drawable/input_info"
-            android:drawableStart="@drawable/account_circle_24"
-            android:drawableEnd="@drawable/baseline_keyboard_arrow_right_24"
-            android:gravity="left"
-            android:padding="10dp"
-            android:src="@drawable/account_circle_24"
-            android:text="  Profile"
-            android:textColor="@color/black"
-            android:textStyle="bold|italic"
-            android:textAllCaps="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/cardView"
-            app:layout_constraintVertical_bias="0.233" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_account"

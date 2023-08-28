@@ -29,7 +29,6 @@ class SplashScreen : AppCompatActivity() {
                 endId: Int,
                 progress: Float
             ) {
-
             }
 
             override fun onTransitionCompleted(motionLayout: MotionLayout?, currentId: Int) {

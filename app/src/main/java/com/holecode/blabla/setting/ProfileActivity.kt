@@ -99,7 +99,7 @@ class ProfileActivity : AppCompatActivity() {
                         "No Image"
                     )
                     // Call retrieveUserData before uploading user data
-                    retrieveUserData()
+
 
                     database.reference.child("users").child(uid).setValue(user)
                         .addOnCanceledListener {
@@ -127,38 +127,6 @@ class ProfileActivity : AppCompatActivity() {
                     finish()
                 }
     }
-
-
-     fun retrieveUserData() {
-        var n = binding.nameProfile.text.toString()
-        var ab = binding.aboutProfile.text.toString()
-        val uid = auth.uid
-        if (uid != null) {
-            val userReference = database.reference.child("users").child(uid)
-            userReference.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        val user = snapshot.getValue(User::class.java)
-                        if (user != null) {
-                            // Update UI with retrieved data
-                            n = user.name
-                           ab = user.status
-                            if (user.imageUrl.isNotEmpty()) {
-                                Glide.with(this@ProfileActivity)
-                                    .load(user.imageUrl)
-                                    .into(binding.imageProfile)
-                            }
-                        }
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    // Handle error
-                }
-            })
-        }
-    }
-
 
 //    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 //        super.onActivityResult(requestCode, resultCode, data)
@@ -195,6 +163,10 @@ class ProfileActivity : AppCompatActivity() {
             selectedImage = data.data!!
 
         }
+    }
+
+    private fun retrieveUserData(){
+
     }
 
 //    override fun onStart() {
