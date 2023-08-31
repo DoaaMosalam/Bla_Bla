@@ -22,7 +22,7 @@ class AccountActivity : AppCompatActivity() {
         binding.btnSingOut.setOnClickListener{
             lifecycleScope.launch(Dispatchers.Main){
                 auth.logoutUser()
-                startActivity(Intent(this@AccountActivity, LoginActivity::class.java))
+//                startActivity(Intent(this@AccountActivity, LoginActivity::class.java))
             }
         }
     }

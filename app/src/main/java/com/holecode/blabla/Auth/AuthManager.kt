@@ -113,7 +113,7 @@ class AuthManager : AppCompatActivity() {
     suspend fun logoutUser(): Result<Boolean> = withContext(Dispatchers.IO) {
         try {
             auth.signOut()
-
+            startActivity(Intent(this@AuthManager,LoginActivity::class.java))
             Result.Success(true)
         } catch (e: Exception) {
             Result.Error(e)

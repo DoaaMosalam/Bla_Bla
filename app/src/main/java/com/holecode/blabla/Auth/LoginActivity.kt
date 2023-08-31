@@ -2,6 +2,8 @@ package com.holecode.blabla.Auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.facebook.AccessToken
@@ -25,35 +27,45 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 const val REQUEST_CODE_SIGN_IN = 0
-class LoginActivity :AppCompatActivity() {
+
+class LoginActivity : AppCompatActivity(), TextWatcher {
     private lateinit var binding: ActivityLoginBinding
-     lateinit var authManager :AuthManager
+    lateinit var authManager: AuthManager
     private lateinit var auth: FirebaseAuth
     private lateinit var callbackManager: CallbackManager
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+//==================================================================================================
+
+        binding.edEmail.addTextChangedListener(this@LoginActivity)
+        binding.edPassword.addTextChangedListener(this@LoginActivity)
+
         authManager = AuthManager()
         // Initialize Facebook Login
         callbackManager = CallbackManager.Factory.create()
+//==================================================================================================
 
+        // handle on click button(login,forget,google,facebook)
         binding.apply {
             binding.btnLogin.setOnClickListener {
                 lifecycleScope.launch {
-                    if (binding.edEmail.text.toString().trim().isEmpty()) {
-                        binding.edEmail.error = "Email is Request"
-                        binding.edPassword.requestFocus()
-                    } else if (binding.edPassword.text.toString().isEmpty()) {
-                        binding.edPassword.error = "Password is Request"
-                        binding.edPassword.requestFocus()
-                    } else {
+//                    if (binding.edEmail.text!!.trim().toString().isEmpty()) {
+//                        binding.edEmail.error = "Email is Request"
+//                        binding.edEmail.requestFocus()
+//                    } else if (binding.edPassword.text!!.trim().toString().isEmpty()) {
+//                        binding.edPassword.error = "Password is Request"
+//                        binding.edPassword.requestFocus()
+//                    } else {
                         // call method registerUser from class AuthManager
-                        authManager.registerUser(
-                            binding.edEmail.text.toString(),
-                            binding.edPassword.text.toString())
+//                        authManager.registerUser(
+//                            binding.edEmail.text.toString(), binding.edPassword.text.toString()
+//                        )
+
+                    if (binding.edEmail.text.toString().isNotEmpty()
+                        && binding.edPassword.text.toString().isNotEmpty()){
+
                     }
                     authManager.sendEmailVerification()
                 }
@@ -64,49 +76,67 @@ class LoginActivity :AppCompatActivity() {
             binding.btnForgotPassword.setOnClickListener {
                 lifecycleScope.launch {
                     // call method forgetPassword from class AuthManager
-                   authManager.forgetPassword(binding.edEmail.text.toString().trim())
+                    authManager.forgetPassword(binding.edEmail.text.toString().trim())
                 }
             }
+            // Handle set on click button sign up google
             binding.btnGmail.setOnClickListener {
                 lifecycleScope.launch {
-                   authenticateWithGoogle()
+                    authenticateWithGoogle()
                 }
             }
+            // Handle set on click button sign up facebook
             binding.btnFacebook.setOnClickListener {
                 lifecycleScope.launch {
-               authenticationWithFacebook()
+                    authenticationWithFacebook()
                 }
             }
 
         }
     }
 
+    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
+    }
+
+    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+    }
+
+    override fun afterTextChanged(p0: Editable?) {
+        binding.btnLogin.isEnabled =
+            binding.edEmail.text!!.trim().isNotEmpty() && binding.edPassword.text.toString().trim()
+                .isNotEmpty()
+
+
+    }
+
+    //==================================================================================================
     // Add method to authentication with mail by google
     private fun authenticateWithGoogle() {
         val option = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken((getString(R.string.default_web_client_id))) // Your Web Client ID from Firebase Console
-            .requestEmail()
-            .build()
+            .requestEmail().build()
         val signInClient = GoogleSignIn.getClient(this, option)
         signInClient.signInIntent.also {
             startActivityForResult(it, REQUEST_CODE_SIGN_IN)
         }
     }
 
-    private suspend fun googleAuthForFirebase(account: GoogleSignInAccount) :Result<Boolean> = withContext(Dispatchers.IO){
-        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-        try {
-            auth.signInWithCredential(credential).await()
-            Result.Success(true)
-        } catch (e: Exception) {
-            withContext(Dispatchers.Main) {
+    private suspend fun googleAuthForFirebase(account: GoogleSignInAccount): Result<Boolean> =
+        withContext(Dispatchers.IO) {
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+            try {
+                auth.signInWithCredential(credential).await()
+                Result.Success(true)
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
 //                    Toast.makeText(this@AuthManager, e.message, Toast.LENGTH_SHORT).show()
-                Result.Error(e)
+                    Result.Error(e)
+                }
             }
-        }
 
-    }
+        }
 
     // Add method to authentication with facebook
     private suspend fun authenticationWithFacebook() {
@@ -115,9 +145,8 @@ class LoginActivity :AppCompatActivity() {
         if (accessToken != null && !accessToken.isExpired) {
             navigateToHomePage()
         }
-        LoginManager.getInstance().registerCallback(
-            callbackManager,
-            object : FacebookCallback<LoginResult> {
+        LoginManager.getInstance()
+            .registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
                 override fun onCancel() {
 
                 }
@@ -142,7 +171,7 @@ class LoginActivity :AppCompatActivity() {
         if (requestCode == REQUEST_CODE_SIGN_IN) {
             val account = GoogleSignIn.getSignedInAccountFromIntent(data).result
             account?.let {
-                lifecycleScope.launch{
+                lifecycleScope.launch {
                     googleAuthForFirebase(it)
                 }
 
@@ -150,6 +179,7 @@ class LoginActivity :AppCompatActivity() {
         }
     }
 
+    //==================================================================================================
     // Add method to intent between this class anther class
     private fun navigateToHomePage() {
         lifecycleScope.launch {
@@ -158,10 +188,13 @@ class LoginActivity :AppCompatActivity() {
             finish()
         }
     }
+//==================================================================================================
 
     //Add method to start home page when user finish auth.
-    override fun onStart() {
-        super.onStart()
-        navigateToHomePage()
-    }
+//    override fun onStart() {
+//        super.onStart()
+//        navigateToHomePage()
+//    }
+
+
 }

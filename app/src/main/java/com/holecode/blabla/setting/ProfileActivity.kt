@@ -6,6 +6,8 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -13,9 +15,11 @@ import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
+import com.holecode.blabla.R
 import com.holecode.blabla.databinding.ActivityProfileBinding
 import com.holecode.blabla.pojo.User
 import com.holecode.blabla.util.HomeActivity
@@ -33,7 +37,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var database: FirebaseDatabase
     private lateinit var storage: FirebaseStorage
     private lateinit var selectedImage: Uri
-    private lateinit var dialog:AlertDialog.Builder
+    private lateinit var dialog: AlertDialog.Builder
 
     // Constants
     private val PICK_IMAGE_REQUEST = 1
@@ -44,12 +48,12 @@ class ProfileActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
-        dialog=AlertDialog.Builder(this)
+        dialog = AlertDialog.Builder(this)
             .setMessage("Update Profile...")
             .setCancelable(false)
 //initialize firebase
-        database= FirebaseDatabase.getInstance()
-        storage= FirebaseStorage.getInstance()
+        database = FirebaseDatabase.getInstance()
+        storage = FirebaseStorage.getInstance()
         auth = FirebaseAuth.getInstance()
 
         binding.imageProfile.setOnClickListener {
@@ -60,83 +64,77 @@ class ProfileActivity : AppCompatActivity() {
 
         binding.btnDone.setOnClickListener {
             val name = binding.nameProfile.text.toString()
-            val status = binding.aboutProfile.text.toString()
-            if (name.isEmpty()){
+            val status = binding.statusProfile.text.toString()
+            if (name.isEmpty()) {
                 binding.nameProfile.error = "Please type your name"
-            } else
-                lifecycleScope.launch(Dispatchers.Main){
+            } else {
+                lifecycleScope.launch(Dispatchers.Main) {
                     uploadData()
                 }
+            }
         }
-
     }
 
     //this method open gallery to choose image.
     suspend fun OpenImageChooser() = withContext(Dispatchers.IO) {
         val intent = Intent()
-        intent.action=Intent.ACTION_GET_CONTENT
-        intent.type="image/*"
-        startActivityForResult(intent,PICK_IMAGE_REQUEST)
+        intent.action = Intent.ACTION_GET_CONTENT
+        intent.type = "image/*"
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
+
     suspend fun uploadData() = withContext(Dispatchers.IO) {
-            val reference = storage.reference.child("Profile").child(Date().time.toString())
-            reference.putFile(selectedImage).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    reference.downloadUrl.addOnSuccessListener { task ->
-                        lifecycleScope.launch {
-                            uploadInfo(task.toString())
-                        }
+        val reference = storage.reference.child("Profile").child(Date().time.toString())
+        reference.putFile(selectedImage).addOnCompleteListener {
+            if (it.isSuccessful) {
+                reference.downloadUrl.addOnSuccessListener { task ->
+                    lifecycleScope.launch {
+                        uploadInfo(task.toString())
                     }
                 }
-                else {
-                    val uid = auth.uid.toString()
-                    val na = binding.nameProfile.text.toString()
-                    val about = binding.aboutProfile.text.toString()
-                    val user = User(
-                        uid,
-                        na,
-                        about,
-                        "No Image"
-                    )
-                    // Call retrieveUserData before uploading user data
+            } else {
+                val uid = auth.uid.toString()
+                val na = binding.nameProfile.text.toString()
+                val about = binding.statusProfile.text.toString()
+                val user = User(
+                    uid,
+                    na,
+                    about,
+                    "No Image"
+                )
+                // Call retrieveUserData before uploading user data
+                retrieveUserData()
 
-
-                    database.reference.child("users").child(uid).setValue(user)
-                        .addOnCanceledListener {
-                            val intent = Intent(this@ProfileActivity, HomeActivity::class.java)
-                            startActivity(intent)
-                            finish()
-                        }
-                }
-
+                database.reference.child("users").child(uid).setValue(user)
+                    .addOnCanceledListener {
+                        val intent = Intent(this@ProfileActivity, HomeActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
             }
+
+        }
     }
 
-    suspend fun uploadInfo(imageUri: String) = withContext((Dispatchers.IO)){
-        val user = User(auth.uid.toString(),
-            binding.nameProfile.text.toString() ,
-            binding.aboutProfile.text.toString(),
-            imageUri)
+    suspend fun uploadInfo(imageUri: String) = withContext((Dispatchers.IO)) {
+        val user = User(
+            auth.uid.toString(),
+            binding.nameProfile.text.toString(),
+            binding.statusProfile.text.toString(),
+            imageUri
+        )
         database.reference.child("users")
             .child(auth.uid.toString())
             .setValue(user)
             .addOnCompleteListener {
-                    Toast.makeText(this@ProfileActivity, "Data  inserted", Toast.LENGTH_SHORT)
-                        .show()
-                    startActivity(Intent(this@ProfileActivity, HomeActivity::class.java))
-                    finish()
-                }
+                Toast.makeText(this@ProfileActivity, "Data  inserted", Toast.LENGTH_SHORT)
+                    .show()
+                startActivity(Intent(this@ProfileActivity, HomeActivity::class.java))
+                finish()
+            }
     }
 
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
-//        if (data != null){
-//            if (data.data != null ){
-//                selectedImage = data.data!!
-//                binding.imageProfile.setImageURI(selectedImage)
-//            }
-//        }
-//    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (data != null) {
@@ -165,9 +163,34 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
-    private fun retrieveUserData(){
+    fun retrieveUserData() {
+        val uid = auth.uid
+        val dbRef = database.reference.child("users").child(auth.uid!!)
+        dbRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val user = snapshot.getValue(User::class.java)
+                if (snapshot.exists()) {
+                    user?.let {
+                        val name = user.name
+                        val status = user.status
+                        val image = user.imageUrl
+                        // Use the retrieved data as needed
+                        // For example, you can update the UI with the retrieved values
+                        binding.nameProfile.setText(name)
+                        binding.statusProfile.setText(status)
+                        Glide.with(this@ProfileActivity).load(image).into(binding.imageProfile)
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+
+        })
+
 
     }
+
 
 //    override fun onStart() {
 //        super.onStart()

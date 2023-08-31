@@ -46,7 +46,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     android:background="@drawable/input_info"
-                    android:hint="Type your name"
+                    android:hint="@string/profile_name"
                     android:inputType="text"
                     android:padding="15dp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -55,12 +55,12 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/about_profile"
+                    android:id="@+id/status_profile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     android:background="@drawable/input_info"
-                    android:hint="About"
+                    android:hint="@string/profile_status"
                     android:inputType="text"
                     android:padding="15dp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -73,7 +73,7 @@
                     android:id="@+id/btn_done"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:text="Done"
+                    android:text="@string/profile_btn_done"
                     android:textAllCaps="false"
                     android:background="@drawable/input_info"
                     android:backgroundTint="@color/white_purple"
