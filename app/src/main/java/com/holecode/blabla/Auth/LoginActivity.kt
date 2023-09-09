@@ -21,12 +21,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.holecode.blabla.R
 import com.holecode.blabla.databinding.ActivityLoginBinding
 import com.holecode.blabla.setting.ProfileActivity
-import com.holecode.blabla.setting.SetUpProfile
+import com.holecode.blabla.setting.SetUpFirebase
 import com.holecode.blabla.util.HomeActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,7 +36,7 @@ import kotlinx.coroutines.withContext
 
 const val REQUEST_CODE_SIGN_IN = 0
 
-class LoginActivity : AppCompatActivity(), TextWatcher,SetUpProfile {
+class LoginActivity : AppCompatActivity(), TextWatcher,SetUpFirebase {
     private lateinit var binding: ActivityLoginBinding
     lateinit var authManager: AuthManager
     private lateinit var callbackManager: CallbackManager
@@ -102,6 +103,10 @@ class LoginActivity : AppCompatActivity(), TextWatcher,SetUpProfile {
     override val firebaseStoreInstance: FirebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
     }
+    override val dataBase: FirebaseDatabase
+        get() = TODO("Not yet implemented")
+    override val storage: FirebaseStorage
+        get() = TODO("Not yet implemented")
 
     override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 

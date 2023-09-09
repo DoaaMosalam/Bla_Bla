@@ -14,6 +14,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.holecode.blabla.databinding.ActivityProfileBinding
 import com.holecode.blabla.pojo.UserProfile
@@ -24,16 +25,30 @@ import kotlinx.coroutines.withContext
 import java.util.Date
 
 
-class ProfileActivity : AppCompatActivity() {
+class ProfileActivity : AppCompatActivity(),SetUpFirebase {
     private lateinit var binding: ActivityProfileBinding
-    private lateinit var auth: FirebaseAuth
-    private lateinit var database: FirebaseDatabase
-    private lateinit var storage: FirebaseStorage
+//    private lateinit var auth: FirebaseAuth
+//    private lateinit var database: FirebaseDatabase
+//    private lateinit var storage: FirebaseStorage
     private lateinit var selectedImage: Uri
     private lateinit var dialog: AlertDialog.Builder
 
+    override val auth: FirebaseAuth by lazy{
+        FirebaseAuth.getInstance()
+    }
+    override val firebaseStoreInstance: FirebaseFirestore by lazy {
+        FirebaseFirestore.getInstance()
+    }
+    override val dataBase: FirebaseDatabase by lazy {
+       FirebaseDatabase.getInstance()
+    }
+    override val storage: FirebaseStorage by lazy {
+        FirebaseStorage.getInstance()
+    }
+
     // Constants
     private val PICK_IMAGE_REQUEST = 1
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,9 +60,9 @@ class ProfileActivity : AppCompatActivity() {
             .setMessage("Update Profile...")
             .setCancelable(false)
 //initialize firebase
-        database = FirebaseDatabase.getInstance()
-        storage = FirebaseStorage.getInstance()
-        auth = FirebaseAuth.getInstance()
+//        database = FirebaseDatabase.getInstance()
+//        storage = FirebaseStorage.getInstance()
+//        auth = FirebaseAuth.getInstance()
 
         binding.imageProfile.setOnClickListener {
             lifecycleScope.launch(Dispatchers.Main) {
@@ -98,7 +113,7 @@ class ProfileActivity : AppCompatActivity() {
                 // Call retrieveUserData before uploading user data
                 retrieveUserData()
 
-                database.reference.child("users").child(uid).setValue(user)
+                dataBase.reference.child("users").child(uid).setValue(user)
                     .addOnCanceledListener {
                         val intent = Intent(this@ProfileActivity, HomeActivity::class.java)
                         startActivity(intent)
@@ -116,7 +131,7 @@ class ProfileActivity : AppCompatActivity() {
             binding.statusProfile.text.toString(),
             imageUri
         )
-        database.reference.child("users")
+        dataBase.reference.child("users")
             .child(auth.uid.toString())
             .setValue(user)
             .addOnCompleteListener {
@@ -142,7 +157,7 @@ class ProfileActivity : AppCompatActivity() {
                             val filePath = uri.toString()
                             val obj = HashMap<String, Any>()
                             obj["image"] = filePath
-                            database.reference.child("users")
+                            dataBase.reference.child("users")
                                 .child(FirebaseAuth.getInstance().uid!!).updateChildren(obj)
                                 .addOnSuccessListener { }
                         }
@@ -158,7 +173,7 @@ class ProfileActivity : AppCompatActivity() {
 
     fun retrieveUserData() {
         val uid = auth.uid
-        val dbRef = database.reference.child("users").child(auth.uid!!)
+        val dbRef = dataBase.reference.child("users").child(auth.uid!!)
         dbRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val user = snapshot.getValue(UserProfile::class.java)
@@ -183,8 +198,6 @@ class ProfileActivity : AppCompatActivity() {
 
 
     }
-
-
 //    override fun onStart() {
 //        super.onStart()
 //        val user = auth.currentUser!!.uid

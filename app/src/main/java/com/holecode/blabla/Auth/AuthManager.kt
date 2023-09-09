@@ -6,10 +6,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.holecode.blabla.pojo.User
-import com.holecode.blabla.setting.SetUpProfile
+import com.holecode.blabla.setting.SetUpFirebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,21 +19,17 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 
-class AuthManager : AppCompatActivity(), SetUpProfile {
+class AuthManager : AppCompatActivity(), SetUpFirebase {
     override val auth: FirebaseAuth by lazy {
         FirebaseAuth.getInstance()
     }
     override val firebaseStoreInstance: FirebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
     }
-
-
-    //    private val auth:FirebaseAuth by lazy {
-//        FirebaseAuth.getInstance()
-//    }
-//    private val firebaseStoreInstance:FirebaseFirestore by lazy {
-//        FirebaseFirestore.getInstance()
-//    }
+    override val dataBase: FirebaseDatabase
+        get() = TODO("Not yet implemented")
+    override val storage: FirebaseStorage
+        get() = TODO("Not yet implemented")
     private val currentUserDocRef: DocumentReference
         get() = firebaseStoreInstance.document("user/${auth.currentUser?.uid.toString()}")
 
@@ -141,7 +139,7 @@ class AuthManager : AppCompatActivity(), SetUpProfile {
     suspend fun logoutUser(): Result<Boolean> = withContext(Dispatchers.IO) {
         try {
             auth.signOut()
-            startActivity(Intent(this@AuthManager, LoginActivity::class.java))
+//            startActivity(Intent(this@AuthManager, LoginActivity::class.java))
             Result.Success(true)
         } catch (e: Exception) {
             Result.Error(e)
