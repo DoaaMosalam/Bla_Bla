@@ -1,10 +1,14 @@
 package com.holecode.blabla.Auth
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
@@ -17,9 +21,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
 import com.holecode.blabla.R
 import com.holecode.blabla.databinding.ActivityLoginBinding
 import com.holecode.blabla.setting.ProfileActivity
+import com.holecode.blabla.setting.SetUpProfile
 import com.holecode.blabla.util.HomeActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,19 +35,24 @@ import kotlinx.coroutines.withContext
 
 const val REQUEST_CODE_SIGN_IN = 0
 
-class LoginActivity : AppCompatActivity(), TextWatcher {
+class LoginActivity : AppCompatActivity(), TextWatcher,SetUpProfile {
     private lateinit var binding: ActivityLoginBinding
     lateinit var authManager: AuthManager
-    private lateinit var auth: FirebaseAuth
     private lateinit var callbackManager: CallbackManager
+    private lateinit var checkIcon: Drawable
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        checkIcon = ContextCompat.getDrawable(this, R.drawable.baseline_check_24)!!
 //==================================================================================================
-
-        binding.edEmail.addTextChangedListener(this@LoginActivity)
-        binding.edPassword.addTextChangedListener(this@LoginActivity)
+        binding.apply {
+            binding.edEmail.addTextChangedListener(this@LoginActivity)
+            binding.edPassword.addTextChangedListener(this@LoginActivity)
+        }
+        setEmailFocusListener()
+        setPasswordFocusListener()
 
         authManager = AuthManager()
         // Initialize Facebook Login
@@ -51,25 +63,15 @@ class LoginActivity : AppCompatActivity(), TextWatcher {
         binding.apply {
             binding.btnLogin.setOnClickListener {
                 lifecycleScope.launch {
-//                    if (binding.edEmail.text!!.trim().toString().isEmpty()) {
-//                        binding.edEmail.error = "Email is Request"
-//                        binding.edEmail.requestFocus()
-//                    } else if (binding.edPassword.text!!.trim().toString().isEmpty()) {
-//                        binding.edPassword.error = "Password is Request"
-//                        binding.edPassword.requestFocus()
-//                    } else {
-                        // call method registerUser from class AuthManager
-//                        authManager.registerUser(
-//                            binding.edEmail.text.toString(), binding.edPassword.text.toString()
-//                        )
-
-                    if (binding.edEmail.text.toString().isNotEmpty()
-                        && binding.edPassword.text.toString().isNotEmpty()){
-
+                    val email = binding.edEmail.text.toString().trim()
+                    val password = binding.edPassword.text.toString().trim()
+                    authManager.registerUser(email, password).apply {
+                        val intent = Intent(this@LoginActivity,HomeActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        startActivity(intent)
                     }
-                    authManager.sendEmailVerification()
                 }
-                navigateToHomePage()
+
             }
 
             //method to forgetPassword user.
@@ -94,6 +96,12 @@ class LoginActivity : AppCompatActivity(), TextWatcher {
 
         }
     }
+    override val auth: FirebaseAuth by lazy {
+        FirebaseAuth.getInstance()
+    }
+    override val firebaseStoreInstance: FirebaseFirestore by lazy {
+        FirebaseFirestore.getInstance()
+    }
 
     override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
@@ -105,10 +113,83 @@ class LoginActivity : AppCompatActivity(), TextWatcher {
 
     override fun afterTextChanged(p0: Editable?) {
         binding.btnLogin.isEnabled =
-            binding.edEmail.text!!.trim().isNotEmpty() && binding.edPassword.text.toString().trim()
-                .isNotEmpty()
+            binding.edEmail.text!!.trim().isNotEmpty()
+                    && binding.edPassword.text.toString().trim().isNotEmpty()
+                    && validateEmail()
+                    &&validatePassword()
+    }
 
+    private fun validateEmail():Boolean{
+        val valueEmail = binding.edEmail.text.toString().toString()
+        if (valueEmail.isEmpty()){
+          binding.emailTil.error="Email is Required"
+            binding.emailTil.endIconDrawable = null
+        }else if (!isValidEmail(valueEmail)){
+            binding.emailTil.error="Invalid email address"
+            binding.emailTil.endIconDrawable=null
+        }else{
+            binding.emailTil.apply {
+                error=null
+                endIconDrawable=checkIcon
+                setStartIconDrawable(R.drawable.baseline_check_24)
+                setStartIconTintList(ColorStateList.valueOf(Color.GREEN))
 
+            }
+        }
+        return binding.emailTil.error==null
+    }
+
+    private fun validatePassword():Boolean{
+        val valuePassword= binding.edPassword.text.toString().trim()
+        if (valuePassword.isEmpty()){
+            binding.passwordTil.error = "Password is require"
+            binding.passwordTil.endIconDrawable = null
+        }else if (valuePassword.length < 6) {
+            binding.passwordTil.error = "Password must be at least 6 characters"
+            binding.passwordTil.endIconDrawable = null
+        } else if (!valuePassword.matches(".*[A-Z].*".toRegex())) {
+            binding.passwordTil.error =
+                "Password must contain 1 upper-case character"
+            binding.passwordTil.endIconDrawable = null
+        } else if (!valuePassword.matches(".*[a-z].*".toRegex())) {
+            binding.passwordTil.error =
+                "Password must contain 1 lower-case character"
+        } else if (!valuePassword.matches(".*[@#\$%^&+=].*".toRegex())) {
+            binding.passwordTil.error =
+                "Password must contain special[@#\$%^&+=] "
+        } else {
+            binding.passwordTil.apply {
+                error = null
+                endIconDrawable = checkIcon
+                setStartIconDrawable(R.drawable.baseline_check_24)
+                setStartIconTintList(ColorStateList.valueOf(Color.GREEN))
+            }
+        }
+        return binding.passwordTil.error == null
+    }
+    //this method validate email when login
+    private fun isValidEmail(email:String):Boolean{
+        val pattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
+        return email.matches(pattern.toRegex())
+    }
+
+//this method setFocusedListener email appear require when login
+    private fun setEmailFocusListener(){
+        val emailValue = binding.edEmail
+        emailValue.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                validateEmail()
+            }
+        }
+    }
+    //this method setFocusedListener password appear require when login
+    private fun setPasswordFocusListener(){
+        val passwordValue = binding.edPassword
+        passwordValue.setOnFocusChangeListener{_,hasFocuse ->
+            if (!hasFocuse){
+                validatePassword()
+            }
+        }
     }
 
     //==================================================================================================
@@ -188,6 +269,9 @@ class LoginActivity : AppCompatActivity(), TextWatcher {
             finish()
         }
     }
+
+
+
 //==================================================================================================
 
     //Add method to start home page when user finish auth.

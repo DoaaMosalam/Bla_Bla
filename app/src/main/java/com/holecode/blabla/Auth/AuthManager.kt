@@ -6,22 +6,49 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.holecode.blabla.pojo.User
+import com.holecode.blabla.setting.SetUpProfile
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 
-class AuthManager : AppCompatActivity() {
+class AuthManager : AppCompatActivity(), SetUpProfile {
+    override val auth: FirebaseAuth by lazy {
+        FirebaseAuth.getInstance()
+    }
+    override val firebaseStoreInstance: FirebaseFirestore by lazy {
+        FirebaseFirestore.getInstance()
+    }
 
-    private val auth = FirebaseAuth.getInstance()
+
+    //    private val auth:FirebaseAuth by lazy {
+//        FirebaseAuth.getInstance()
+//    }
+//    private val firebaseStoreInstance:FirebaseFirestore by lazy {
+//        FirebaseFirestore.getInstance()
+//    }
+    private val currentUserDocRef: DocumentReference
+        get() = firebaseStoreInstance.document("user/${auth.currentUser?.uid.toString()}")
 
     //Add a method to register a new user
     suspend fun registerUser(email: String, password: String): Result<Boolean> =
         withContext(Dispatchers.IO) {
             try {
-                auth.createUserWithEmailAndPassword(email, password).await()
-                sendEmailVerification()
+                auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+                    val newUser = User(email, password)
+                    currentUserDocRef.set(newUser)
+                    if (task.isSuccessful) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            sendEmailVerification()
+                        }
+                    }
+                }.await()
+
                 when (val result = registerUser(email, password)) {
                     is Result.Success -> {
                         val message = result.toString()
@@ -73,6 +100,7 @@ class AuthManager : AppCompatActivity() {
                         // Open Gmail app
                         openGmail()
                     }
+
                     is Result.Error -> {
                         // Password reset email failed
                         val errorMessage = result.toString()
@@ -89,7 +117,7 @@ class AuthManager : AppCompatActivity() {
         }
 
 
-//Add method to open gmail.
+    //Add method to open gmail.
     private fun openGmail() {
         lifecycleScope.launch {
             try {
@@ -113,10 +141,11 @@ class AuthManager : AppCompatActivity() {
     suspend fun logoutUser(): Result<Boolean> = withContext(Dispatchers.IO) {
         try {
             auth.signOut()
-            startActivity(Intent(this@AuthManager,LoginActivity::class.java))
+            startActivity(Intent(this@AuthManager, LoginActivity::class.java))
             Result.Success(true)
         } catch (e: Exception) {
             Result.Error(e)
         }
     }
 }
+

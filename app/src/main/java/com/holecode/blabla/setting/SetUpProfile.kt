@@ -1,4 +1,9 @@
 package com.holecode.blabla.setting
 
-class SetUpProfile {
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+
+interface SetUpProfile {
+     val auth: FirebaseAuth
+    val firebaseStoreInstance:FirebaseFirestore
 }

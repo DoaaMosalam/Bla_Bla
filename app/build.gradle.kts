@@ -56,7 +56,7 @@ dependencies {
     // Facebook SDK
     implementation ("com.facebook.android:facebook-android-sdk:16.2.0")
     //google sign in
-    implementation ("com.google.android.gms:play-services-auth:20.6.0")
+    implementation ("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
     implementation("com.google.firebase:firebase-messaging-ktx:23.2.1")
     implementation("com.google.firebase:firebase-analytics-ktx:21.3.0")

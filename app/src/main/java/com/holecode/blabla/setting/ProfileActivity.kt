@@ -2,12 +2,9 @@ package com.holecode.blabla.setting
 
 
 import android.app.AlertDialog
-import android.app.ProgressDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -15,17 +12,13 @@ import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
-import com.holecode.blabla.R
 import com.holecode.blabla.databinding.ActivityProfileBinding
-import com.holecode.blabla.pojo.User
+import com.holecode.blabla.pojo.UserProfile
 import com.holecode.blabla.util.HomeActivity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -96,7 +89,7 @@ class ProfileActivity : AppCompatActivity() {
                 val uid = auth.uid.toString()
                 val na = binding.nameProfile.text.toString()
                 val about = binding.statusProfile.text.toString()
-                val user = User(
+                val user = UserProfile(
                     uid,
                     na,
                     about,
@@ -117,7 +110,7 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     suspend fun uploadInfo(imageUri: String) = withContext((Dispatchers.IO)) {
-        val user = User(
+        val user = UserProfile(
             auth.uid.toString(),
             binding.nameProfile.text.toString(),
             binding.statusProfile.text.toString(),
@@ -168,7 +161,7 @@ class ProfileActivity : AppCompatActivity() {
         val dbRef = database.reference.child("users").child(auth.uid!!)
         dbRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val user = snapshot.getValue(User::class.java)
+                val user = snapshot.getValue(UserProfile::class.java)
                 if (snapshot.exists()) {
                     user?.let {
                         val name = user.name

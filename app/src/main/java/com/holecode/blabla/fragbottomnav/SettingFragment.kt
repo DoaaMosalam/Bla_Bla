@@ -16,7 +16,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.holecode.blabla.R
 import com.holecode.blabla.databinding.FragmentSettingBinding
-import com.holecode.blabla.pojo.User
+import com.holecode.blabla.pojo.UserProfile
 import com.holecode.blabla.setting.AccountActivity
 import com.holecode.blabla.setting.ProfileActivity
 
@@ -76,7 +76,7 @@ class SettingFragment : Fragment() {
         val dbRef = database.reference.child("users").child(uid!!)
         dbRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val user = snapshot.getValue(User::class.java)
+                val user = snapshot.getValue(UserProfile::class.java)
                 if (snapshot.exists()) {
                     user?.let {
                         val name = user.name
