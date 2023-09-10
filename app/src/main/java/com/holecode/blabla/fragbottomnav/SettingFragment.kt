@@ -30,7 +30,6 @@ class SettingFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-
         }
     }
 
@@ -46,7 +45,7 @@ class SettingFragment : Fragment() {
 
 
 //        profileActivity.retrieveUserData()
-        retrieveUserData()
+//        retrieveUserData()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -57,7 +56,7 @@ class SettingFragment : Fragment() {
         database = FirebaseDatabase.getInstance()
         storage = FirebaseStorage.getInstance()
         auth = FirebaseAuth.getInstance()
-
+        retrieveUserData()
 
 
     }

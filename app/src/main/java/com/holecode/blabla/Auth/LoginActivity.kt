@@ -26,7 +26,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.holecode.blabla.R
 import com.holecode.blabla.databinding.ActivityLoginBinding
-import com.holecode.blabla.setting.ProfileActivity
 import com.holecode.blabla.setting.SetUpFirebase
 import com.holecode.blabla.util.HomeActivity
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +35,7 @@ import kotlinx.coroutines.withContext
 
 const val REQUEST_CODE_SIGN_IN = 0
 
-class LoginActivity : AppCompatActivity(), TextWatcher,SetUpFirebase {
+class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
     private lateinit var binding: ActivityLoginBinding
     lateinit var authManager: AuthManager
     private lateinit var callbackManager: CallbackManager
@@ -67,9 +66,9 @@ class LoginActivity : AppCompatActivity(), TextWatcher,SetUpFirebase {
                     val email = binding.edEmail.text.toString().trim()
                     val password = binding.edPassword.text.toString().trim()
                     authManager.registerUser(email, password).apply {
-                        val intent = Intent(this@LoginActivity,HomeActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        startActivity(intent)
+
+                        navigateToHomePage()
+
                     }
                 }
 
@@ -97,16 +96,21 @@ class LoginActivity : AppCompatActivity(), TextWatcher,SetUpFirebase {
 
         }
     }
+
+    // initalization Firebase (auth,Database,Storage.Store)
     override val auth: FirebaseAuth by lazy {
         FirebaseAuth.getInstance()
     }
     override val firebaseStoreInstance: FirebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
     }
-    override val dataBase: FirebaseDatabase
-        get() = TODO("Not yet implemented")
-    override val storage: FirebaseStorage
-        get() = TODO("Not yet implemented")
+    override val dataBase: FirebaseDatabase by lazy {
+        FirebaseDatabase.getInstance()
+    }
+    override val storage: FirebaseStorage by lazy {
+        FirebaseStorage.getInstance()
+    }
+
 
     override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
@@ -121,35 +125,35 @@ class LoginActivity : AppCompatActivity(), TextWatcher,SetUpFirebase {
             binding.edEmail.text!!.trim().isNotEmpty()
                     && binding.edPassword.text.toString().trim().isNotEmpty()
                     && validateEmail()
-                    &&validatePassword()
+                    && validatePassword()
     }
 
-    private fun validateEmail():Boolean{
+    private fun validateEmail(): Boolean {
         val valueEmail = binding.edEmail.text.toString().toString()
-        if (valueEmail.isEmpty()){
-          binding.emailTil.error="Email is Required"
+        if (valueEmail.isEmpty()) {
+            binding.emailTil.error = "Email is Required"
             binding.emailTil.endIconDrawable = null
-        }else if (!isValidEmail(valueEmail)){
-            binding.emailTil.error="Invalid email address"
-            binding.emailTil.endIconDrawable=null
-        }else{
+        } else if (!isValidEmail(valueEmail)) {
+            binding.emailTil.error = "Invalid email address"
+            binding.emailTil.endIconDrawable = null
+        } else {
             binding.emailTil.apply {
-                error=null
-                endIconDrawable=checkIcon
+                error = null
+                endIconDrawable = checkIcon
                 setStartIconDrawable(R.drawable.baseline_check_24)
                 setStartIconTintList(ColorStateList.valueOf(Color.GREEN))
 
             }
         }
-        return binding.emailTil.error==null
+        return binding.emailTil.error == null
     }
 
-    private fun validatePassword():Boolean{
-        val valuePassword= binding.edPassword.text.toString().trim()
-        if (valuePassword.isEmpty()){
+    private fun validatePassword(): Boolean {
+        val valuePassword = binding.edPassword.text.toString().trim()
+        if (valuePassword.isEmpty()) {
             binding.passwordTil.error = "Password is require"
             binding.passwordTil.endIconDrawable = null
-        }else if (valuePassword.length < 6) {
+        } else if (valuePassword.length < 6) {
             binding.passwordTil.error = "Password must be at least 6 characters"
             binding.passwordTil.endIconDrawable = null
         } else if (!valuePassword.matches(".*[A-Z].*".toRegex())) {
@@ -172,14 +176,15 @@ class LoginActivity : AppCompatActivity(), TextWatcher,SetUpFirebase {
         }
         return binding.passwordTil.error == null
     }
+
     //this method validate email when login
-    private fun isValidEmail(email:String):Boolean{
+    private fun isValidEmail(email: String): Boolean {
         val pattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
         return email.matches(pattern.toRegex())
     }
 
-//this method setFocusedListener email appear require when login
-    private fun setEmailFocusListener(){
+    //this method setFocusedListener email appear require when login
+    private fun setEmailFocusListener() {
         val emailValue = binding.edEmail
         emailValue.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
@@ -187,11 +192,12 @@ class LoginActivity : AppCompatActivity(), TextWatcher,SetUpFirebase {
             }
         }
     }
+
     //this method setFocusedListener password appear require when login
-    private fun setPasswordFocusListener(){
+    private fun setPasswordFocusListener() {
         val passwordValue = binding.edPassword
-        passwordValue.setOnFocusChangeListener{_,hasFocuse ->
-            if (!hasFocuse){
+        passwordValue.setOnFocusChangeListener { _, hasFocuse ->
+            if (!hasFocuse) {
                 validatePassword()
             }
         }
@@ -267,23 +273,22 @@ class LoginActivity : AppCompatActivity(), TextWatcher,SetUpFirebase {
 
     //==================================================================================================
     // Add method to intent between this class anther class
-    private fun navigateToHomePage() {
+    fun navigateToHomePage() {
         lifecycleScope.launch {
-            val intent = Intent(this@LoginActivity, ProfileActivity::class.java)
+            val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
-            finish()
         }
     }
-
 
 
 //==================================================================================================
 
     //Add method to start home page when user finish auth.
-//    override fun onStart() {
-//        super.onStart()
-//        navigateToHomePage()
-//    }
+    override fun onStart() {
+        super.onStart()
+        navigateToHomePage()
+    }
 
 
 }

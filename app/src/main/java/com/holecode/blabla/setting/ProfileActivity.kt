@@ -27,9 +27,7 @@ import java.util.Date
 
 class ProfileActivity : AppCompatActivity(),SetUpFirebase {
     private lateinit var binding: ActivityProfileBinding
-//    private lateinit var auth: FirebaseAuth
-//    private lateinit var database: FirebaseDatabase
-//    private lateinit var storage: FirebaseStorage
+
     private lateinit var selectedImage: Uri
     private lateinit var dialog: AlertDialog.Builder
 
