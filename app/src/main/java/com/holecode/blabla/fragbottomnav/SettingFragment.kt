@@ -2,11 +2,11 @@ package com.holecode.blabla.fragbottomnav
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -56,7 +56,7 @@ class SettingFragment : Fragment() {
         database = FirebaseDatabase.getInstance()
         storage = FirebaseStorage.getInstance()
         auth = FirebaseAuth.getInstance()
-        retrieveUserData()
+//        retrieveUserData()
 
 
     }
@@ -95,7 +95,5 @@ class SettingFragment : Fragment() {
             }
 
         })
-
-
     }
 }

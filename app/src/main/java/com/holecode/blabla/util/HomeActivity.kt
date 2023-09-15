@@ -12,16 +12,16 @@ import kotlinx.coroutines.launch
 
 
 class HomeActivity : AppCompatActivity() {
-    private lateinit var binding:ActivityHomeBinding
-    private lateinit var adapterFragment:AdapterViewPager
+    private lateinit var binding: ActivityHomeBinding
+    private lateinit var adapterFragment: AdapterViewPager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-            adapterFragment = AdapterViewPager(this)
-            binding.viewPagerMain.adapter = adapterFragment
+        adapterFragment = AdapterViewPager(this)
+        binding.viewPagerMain.adapter = adapterFragment
         // handle View pager about bottom navigation view
         CoroutineScope(Dispatchers.Main).launch {
             binding.viewPagerMain.registerOnPageChangeCallback(object :

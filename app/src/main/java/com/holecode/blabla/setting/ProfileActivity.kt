@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -16,6 +17,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.holecode.blabla.R
 import com.holecode.blabla.databinding.ActivityProfileBinding
 import com.holecode.blabla.pojo.UserProfile
 import com.holecode.blabla.util.HomeActivity
@@ -25,50 +27,45 @@ import kotlinx.coroutines.withContext
 import java.util.Date
 
 
-class ProfileActivity : AppCompatActivity(),SetUpFirebase {
+class ProfileActivity : AppCompatActivity(), SetUpFirebase, View.OnClickListener {
     private lateinit var binding: ActivityProfileBinding
 
     private lateinit var selectedImage: Uri
     private lateinit var dialog: AlertDialog.Builder
 
-    override val auth: FirebaseAuth by lazy{
+    // Constants
+    private val PICK_IMAGE_REQUEST = 1
+
+    //=============================================================================================
+    override val auth: FirebaseAuth by lazy {
         FirebaseAuth.getInstance()
     }
     override val firebaseStoreInstance: FirebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
     }
     override val dataBase: FirebaseDatabase by lazy {
-       FirebaseDatabase.getInstance()
+        FirebaseDatabase.getInstance()
     }
     override val storage: FirebaseStorage by lazy {
         FirebaseStorage.getInstance()
     }
 
-    // Constants
-    private val PICK_IMAGE_REQUEST = 1
-
-
+    //=============================================================================================
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-
         dialog = AlertDialog.Builder(this)
             .setMessage("Update Profile...")
             .setCancelable(false)
-//initialize firebase
-//        database = FirebaseDatabase.getInstance()
-//        storage = FirebaseStorage.getInstance()
-//        auth = FirebaseAuth.getInstance()
+        binding.btnDone.setOnClickListener(this)
+        binding.imageProfile.setOnClickListener(this)
+    }
 
-        binding.imageProfile.setOnClickListener {
-            lifecycleScope.launch(Dispatchers.Main) {
-                OpenImageChooser()
-            }
-        }
-
-        binding.btnDone.setOnClickListener {
+    //=============================================================================================
+    //This method is setOnClickListener.
+    override fun onClick(view: View?) {
+        if (view != null && view.id == R.id.btn_done) {
             val name = binding.nameProfile.text.toString()
             val status = binding.statusProfile.text.toString()
             if (name.isEmpty()) {
@@ -77,19 +74,28 @@ class ProfileActivity : AppCompatActivity(),SetUpFirebase {
                 lifecycleScope.launch(Dispatchers.Main) {
                     uploadData()
                 }
+                startActivity(Intent(this@ProfileActivity, HomeActivity::class.java))
+            }
+        } else if (view != null && view.id == R.id.image_profile) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                OpenImageChooser()
             }
         }
     }
 
+    //=============================================================================================
     //this method open gallery to choose image.
     suspend fun OpenImageChooser() = withContext(Dispatchers.IO) {
-        val intent = Intent()
-        intent.action = Intent.ACTION_GET_CONTENT
-        intent.type = "image/*"
+        val intent = Intent().apply {
+            action = Intent.ACTION_GET_CONTENT
+            type = "image/*"
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/jpeg", "image/png"))
+
+        }
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
-    suspend fun uploadData() = withContext(Dispatchers.IO) {
+    private suspend fun uploadData() = withContext(Dispatchers.IO) {
         val reference = storage.reference.child("Profile").child(Date().time.toString())
         reference.putFile(selectedImage).addOnCompleteListener {
             if (it.isSuccessful) {
@@ -110,7 +116,6 @@ class ProfileActivity : AppCompatActivity(),SetUpFirebase {
                 )
                 // Call retrieveUserData before uploading user data
                 retrieveUserData()
-
                 dataBase.reference.child("users").child(uid).setValue(user)
                     .addOnCanceledListener {
                         val intent = Intent(this@ProfileActivity, HomeActivity::class.java)
@@ -139,7 +144,6 @@ class ProfileActivity : AppCompatActivity(),SetUpFirebase {
                 finish()
             }
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -196,6 +200,8 @@ class ProfileActivity : AppCompatActivity(),SetUpFirebase {
 
 
     }
+
+
 //    override fun onStart() {
 //        super.onStart()
 //        val user = auth.currentUser!!.uid

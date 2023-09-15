@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-<!--    Focused and not pressed -->
-    <item android:state_enabled="true"
-        android:state_pressed="false"
-        android:color="@color/light_gray"/>
-<!--    Focused and  pressed -->
-    <item  android:state_enabled="true"
-        android:state_pressed="true"
-        android:color="@color/light_gray"/>
-<!--    default-->
-    <item
-        android:color="@color/black_purple"/>
+    <!--    Focused and not pressed -->
+    <item android:color="@color/light_gray" android:state_enabled="true" android:state_pressed="false" />
+    <!--    Focused and  pressed -->
+    <item android:color="@color/light_gray" android:state_enabled="true" android:state_pressed="true" />
+    <!--    default-->
+    <item android:color="@color/black_purple" />
 
 
 </selector>

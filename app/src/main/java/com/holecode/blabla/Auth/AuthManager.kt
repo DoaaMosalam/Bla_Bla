@@ -26,10 +26,13 @@ class AuthManager : AppCompatActivity(), SetUpFirebase {
     override val firebaseStoreInstance: FirebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
     }
-    override val dataBase: FirebaseDatabase
-        get() = TODO("Not yet implemented")
-    override val storage: FirebaseStorage
-        get() = TODO("Not yet implemented")
+    override val dataBase: FirebaseDatabase by lazy {
+        FirebaseDatabase.getInstance()
+    }
+
+    override val storage: FirebaseStorage by lazy {
+        FirebaseStorage.getInstance()
+    }
     private val currentUserDocRef: DocumentReference
         get() = firebaseStoreInstance.document("user/${auth.currentUser?.uid.toString()}")
 

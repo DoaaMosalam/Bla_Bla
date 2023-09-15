@@ -8,9 +8,10 @@ import com.holecode.blabla.fragbottomnav.CallsFragment
 import com.holecode.blabla.fragbottomnav.ChatsFragment
 import com.holecode.blabla.fragbottomnav.SettingFragment
 
-class AdapterViewPager(fragmentActivity: FragmentActivity): FragmentStateAdapter(fragmentActivity) {
+class AdapterViewPager(fragmentActivity: FragmentActivity) :
+    FragmentStateAdapter(fragmentActivity) {
 
-   private val fragmentsList = listOf(
+    private val fragmentsList = listOf(
         ChatsFragment(),
         AddFragment(),
         CallsFragment(),

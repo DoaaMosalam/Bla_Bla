@@ -66,12 +66,9 @@ class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
                     val email = binding.edEmail.text.toString().trim()
                     val password = binding.edPassword.text.toString().trim()
                     authManager.registerUser(email, password).apply {
-
                         navigateToHomePage()
-
                     }
                 }
-
             }
 
             //method to forgetPassword user.
@@ -97,7 +94,7 @@ class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
         }
     }
 
-    // initalization Firebase (auth,Database,Storage.Store)
+    // initialization Firebase (auth,Database,Storage.Store)
     override val auth: FirebaseAuth by lazy {
         FirebaseAuth.getInstance()
     }
@@ -111,15 +108,8 @@ class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
         FirebaseStorage.getInstance()
     }
 
-
-    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-    }
-
-    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-    }
-
+    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
     override fun afterTextChanged(p0: Editable?) {
         binding.btnLogin.isEnabled =
             binding.edEmail.text!!.trim().isNotEmpty()
@@ -153,8 +143,8 @@ class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
         if (valuePassword.isEmpty()) {
             binding.passwordTil.error = "Password is require"
             binding.passwordTil.endIconDrawable = null
-        } else if (valuePassword.length < 6) {
-            binding.passwordTil.error = "Password must be at least 6 characters"
+        } else if (valuePassword.length < 8) {
+            binding.passwordTil.error = "Password must be at least 8 characters"
             binding.passwordTil.endIconDrawable = null
         } else if (!valuePassword.matches(".*[A-Z].*".toRegex())) {
             binding.passwordTil.error =
@@ -166,6 +156,9 @@ class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
         } else if (!valuePassword.matches(".*[@#\$%^&+=].*".toRegex())) {
             binding.passwordTil.error =
                 "Password must contain special[@#\$%^&+=] "
+        } else if (!valuePassword.matches(".*[1-9]|10.*".toRegex())) {
+            binding.passwordTil.error =
+                "Password must contains numbers 1:10"
         } else {
             binding.passwordTil.apply {
                 error = null
@@ -281,14 +274,10 @@ class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
         }
     }
 
-
-//==================================================================================================
-
+    //==================================================================================================
     //Add method to start home page when user finish auth.
     override fun onStart() {
         super.onStart()
         navigateToHomePage()
     }
-
-
 }

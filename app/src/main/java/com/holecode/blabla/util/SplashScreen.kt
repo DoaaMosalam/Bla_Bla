@@ -9,7 +9,7 @@ import com.holecode.blabla.databinding.ActivitySplashScreenBinding
 
 
 class SplashScreen : AppCompatActivity() {
-        lateinit var  binding: ActivitySplashScreenBinding
+    lateinit var binding: ActivitySplashScreenBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashScreenBinding.inflate(layoutInflater)
