@@ -6,8 +6,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
 interface SetUpFirebase {
+
+
     val auth: FirebaseAuth
     val firebaseStoreInstance: FirebaseFirestore
-    val dataBase: FirebaseDatabase
+    val database: FirebaseDatabase
     val storage: FirebaseStorage
 }

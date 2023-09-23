@@ -8,28 +8,71 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.holecode.blabla.R
 import com.holecode.blabla.databinding.FragmentSettingBinding
+import com.holecode.blabla.pojo.User
 import com.holecode.blabla.pojo.UserProfile
 import com.holecode.blabla.setting.AccountActivity
 import com.holecode.blabla.setting.ProfileActivity
+import com.holecode.blabla.setting.SetUpFirebase
 
-class SettingFragment : Fragment() {
+class SettingFragment : Fragment() ,SetUpFirebase{
+
+
+    override val auth: FirebaseAuth
+            by lazy { FirebaseAuth.getInstance() }
+    override val firebaseStoreInstance: FirebaseFirestore
+            by lazy { FirebaseFirestore.getInstance() }
+    override val database: FirebaseDatabase
+            by lazy { FirebaseDatabase.getInstance() }
+    override val storage: FirebaseStorage
+            by lazy { FirebaseStorage.getInstance() }
 
     private lateinit var bindingFragmentSetting: FragmentSettingBinding
-    private lateinit var profileActivity: ProfileActivity
-    private lateinit var auth: FirebaseAuth
-    private lateinit var database: FirebaseDatabase
-    private lateinit var storage: FirebaseStorage
+
+    private lateinit var userName: String
+    private lateinit var userstatus: String
+
+    private val currentUserDocRef: DocumentReference
+        get() = firebaseStoreInstance.collection("users")
+            .document(auth.currentUser?.uid.toString())
+
+    private val currentUserStorageRef: StorageReference
+        get() = storage.reference.child(FirebaseAuth.getInstance().currentUser?.uid.toString())
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
+        }
+
+        getUserInfo { user ->
+            userName = user.name
+            userstatus = user.status
+            bindingFragmentSetting.settingName.setText(userName)
+            bindingFragmentSetting.settingStatus.setText(userstatus)
+            if (user.imageUrl.isNotEmpty()) {
+                val requestOptions = RequestOptions()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.drawable.baseline_image_24) // Placeholder image resource
+                    .error(R.drawable.baseline_error_24) // Error image resource
+
+                Glide.with(this@SettingFragment)
+                    .load(user.imageUrl)
+                    .apply(requestOptions)
+                    .into(bindingFragmentSetting.imageSetting)
+            }
         }
     }
 
@@ -44,21 +87,13 @@ class SettingFragment : Fragment() {
         return bindingFragmentSetting.root
 
 
-//        profileActivity.retrieveUserData()
-//        retrieveUserData()
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         navigationToHome()
-        //initialize firebase
-        database = FirebaseDatabase.getInstance()
-        storage = FirebaseStorage.getInstance()
-        auth = FirebaseAuth.getInstance()
-//        retrieveUserData()
-
-
     }
 
     private fun navigationToHome() {
@@ -69,31 +104,14 @@ class SettingFragment : Fragment() {
             startActivity(Intent(requireContext(), AccountActivity::class.java))
         }
     }
-
-    private fun retrieveUserData() {
-        val uid = auth.uid
-        val dbRef = database.reference.child("users").child(uid!!)
-        dbRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val user = snapshot.getValue(UserProfile::class.java)
-                if (snapshot.exists()) {
-                    user?.let {
-                        val name = user.name
-                        val status = user.status
-                        val image = user.imageUrl
-                        // Use the retrieved data as needed
-                        // For example, you can update the UI with the retrieved values
-                        bindingFragmentSetting.settingName.text = name
-                        bindingFragmentSetting.settingStatus.text = status
-                        Glide.with(this@SettingFragment).load(image)
-                            .into(bindingFragmentSetting.imageSetting)
-                    }
-                }
+    private fun getUserInfo(onComplete: (UserProfile) -> Unit) {
+        currentUserDocRef.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val user = documentSnapshot.toObject(UserProfile::class.java)
+                user?.let { onComplete(it) }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-            }
-
-        })
+        }
     }
+
+
 }

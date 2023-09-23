@@ -26,7 +26,7 @@ class AuthManager : AppCompatActivity(), SetUpFirebase {
     override val firebaseStoreInstance: FirebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
     }
-    override val dataBase: FirebaseDatabase by lazy {
+    override val database: FirebaseDatabase by lazy {
         FirebaseDatabase.getInstance()
     }
 
@@ -34,14 +34,14 @@ class AuthManager : AppCompatActivity(), SetUpFirebase {
         FirebaseStorage.getInstance()
     }
     private val currentUserDocRef: DocumentReference
-        get() = firebaseStoreInstance.document("user/${auth.currentUser?.uid.toString()}")
+        get() = firebaseStoreInstance.document("users/${auth.currentUser?.uid.toString()}")
 
     //Add a method to register a new user
     suspend fun registerUser(email: String, password: String): Result<Boolean> =
         withContext(Dispatchers.IO) {
             try {
                 auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-                    val newUser = User(email, password)
+                    val newUser = User(email,password)
                     currentUserDocRef.set(newUser)
                     if (task.isSuccessful) {
                         CoroutineScope(Dispatchers.IO).launch {

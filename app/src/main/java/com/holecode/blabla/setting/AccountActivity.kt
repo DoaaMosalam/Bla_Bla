@@ -2,6 +2,7 @@ package com.holecode.blabla.setting
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
@@ -22,7 +23,7 @@ class AccountActivity : AppCompatActivity(), SetUpFirebase {
     override val firebaseStoreInstance: FirebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
     }
-    override val dataBase: FirebaseDatabase by lazy {
+    override val database: FirebaseDatabase by lazy {
         FirebaseDatabase.getInstance()
 
     }
@@ -37,6 +38,24 @@ class AccountActivity : AppCompatActivity(), SetUpFirebase {
         setContentView(binding.root)
         binding.btnSingOut.setOnClickListener {
             signOutUser()
+        }
+        /*handle button back by toolbar*/
+        val toolbar = binding.txtAccount
+        toolbar.text="Account"
+        setSupportActionBar(binding.toolbarProfile)
+        supportActionBar?.title=""
+        setSupportActionBar(binding.toolbarProfile)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
+    } //end onCreate
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            android.R.id.home ->{
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

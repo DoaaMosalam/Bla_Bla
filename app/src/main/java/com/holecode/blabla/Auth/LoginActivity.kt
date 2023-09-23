@@ -101,7 +101,7 @@ class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
     override val firebaseStoreInstance: FirebaseFirestore by lazy {
         FirebaseFirestore.getInstance()
     }
-    override val dataBase: FirebaseDatabase by lazy {
+    override val database: FirebaseDatabase by lazy {
         FirebaseDatabase.getInstance()
     }
     override val storage: FirebaseStorage by lazy {
@@ -278,6 +278,10 @@ class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
     //Add method to start home page when user finish auth.
     override fun onStart() {
         super.onStart()
-        navigateToHomePage()
+        val user = authManager.auth.currentUser
+        if (user!=null){
+            navigateToHomePage()
+        }
+
     }
 }
