@@ -5,13 +5,9 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.holecode.blabla.pojo.User
-import com.holecode.blabla.setting.SetUpFirebase
+import com.holecode.blabla.setting.SetUserInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,28 +15,16 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 
-class AuthManager : AppCompatActivity(), SetUpFirebase {
-    override val auth: FirebaseAuth by lazy {
-        FirebaseAuth.getInstance()
-    }
-    override val firebaseStoreInstance: FirebaseFirestore by lazy {
-        FirebaseFirestore.getInstance()
-    }
-    override val database: FirebaseDatabase by lazy {
-        FirebaseDatabase.getInstance()
-    }
+class AuthManager : AppCompatActivity() {
 
-    override val storage: FirebaseStorage by lazy {
-        FirebaseStorage.getInstance()
-    }
     private val currentUserDocRef: DocumentReference
-        get() = firebaseStoreInstance.document("users/${auth.currentUser?.uid.toString()}")
+        get() = SetUserInfo.firebaseStoreInstance.document("users/${SetUserInfo.auth.currentUser?.uid.toString()}")
 
     //Add a method to register a new user
     suspend fun registerUser(email: String, password: String): Result<Boolean> =
         withContext(Dispatchers.IO) {
             try {
-                auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+                SetUserInfo.auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
                     val newUser = User(email,password)
                     currentUserDocRef.set(newUser)
                     if (task.isSuccessful) {
@@ -76,7 +60,7 @@ class AuthManager : AppCompatActivity(), SetUpFirebase {
 
     // add a method to  Send email verification.
     suspend fun sendEmailVerification() {
-        val user = auth.currentUser
+        val user = SetUserInfo.auth.currentUser
         try {
             user?.sendEmailVerification()?.await()
             if (user?.isEmailVerified == true) {
@@ -92,7 +76,7 @@ class AuthManager : AppCompatActivity(), SetUpFirebase {
     suspend fun forgetPassword(email: String): Result<Boolean> =
         withContext(Dispatchers.IO) {
             try {
-                auth.sendPasswordResetEmail(email)
+                SetUserInfo.auth.sendPasswordResetEmail(email)
                 when (val result = forgetPassword(email)) {
                     is Result.Success -> {
                         val message = result.toString()
@@ -116,7 +100,6 @@ class AuthManager : AppCompatActivity(), SetUpFirebase {
 
             }
         }
-
 
     //Add method to open gmail.
     private fun openGmail() {

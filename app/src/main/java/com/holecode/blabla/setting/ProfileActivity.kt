@@ -28,6 +28,7 @@ import com.google.firebase.storage.StorageReference
 import com.holecode.blabla.R
 
 import com.holecode.blabla.databinding.ActivityProfileBinding
+import com.holecode.blabla.glide.MyMessengerGlide
 import com.holecode.blabla.pojo.User
 import com.holecode.blabla.pojo.UserProfile
 import com.holecode.blabla.util.HomeActivity
@@ -39,39 +40,15 @@ import java.util.Date
 import java.util.UUID
 
 
-class ProfileActivity : AppCompatActivity(), SetUpFirebase, View.OnClickListener {
+class ProfileActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var binding: ActivityProfileBinding
 
     private lateinit var selectedImage: Uri
     private lateinit var userName: String
     private lateinit var userstatus: String
     private lateinit var dialog: AlertDialog.Builder
-
     // Constants
     private val PICK_IMAGE_REQUEST = 1
-
-    //=============================================================================================
-    override val auth: FirebaseAuth by lazy {
-        FirebaseAuth.getInstance()
-    }
-    override val firebaseStoreInstance: FirebaseFirestore by lazy {
-        FirebaseFirestore.getInstance()
-    }
-    override val database: FirebaseDatabase by lazy {
-        FirebaseDatabase.getInstance()
-    }
-    override val storage: FirebaseStorage by lazy {
-        FirebaseStorage.getInstance()
-    }
-//    private val currentUserDocRef:DocumentReference
-//        get() = firebaseStoreInstance.document("users/${FirebaseAuth.getInstance().currentUser?.uid.toString()}")
-
-    private val currentUserDocRef: DocumentReference
-        get() = firebaseStoreInstance.collection("users")
-            .document(auth.currentUser?.uid.toString())
-
-    private val currentUserStorageRef: StorageReference
-        get() = storage.reference.child(FirebaseAuth.getInstance().currentUser?.uid.toString())
 
     //=============================================================================================
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,7 +72,7 @@ class ProfileActivity : AppCompatActivity(), SetUpFirebase, View.OnClickListener
         supportActionBar?.setHomeButtonEnabled(true)
 
 
-        getUserInfo { user ->
+        SetUserInfo.getUserInfo { user ->
             userName = user.name
             userstatus = user.status
             binding.nameProfile.setText(userName)
@@ -160,13 +137,13 @@ class ProfileActivity : AppCompatActivity(), SetUpFirebase, View.OnClickListener
     }
 
     private suspend fun uploadData() = withContext(Dispatchers.IO) {
-        val uid = auth.currentUser?.uid.toString()
+        val uid = SetUserInfo.auth.currentUser?.uid.toString()
         val name = binding.nameProfile.text.toString()
         val status = binding.statusProfile.text.toString()
 
         val user = UserProfile(uid, name, status, "No Image")
 
-        val reference = storage.reference.child("Profile").child(Date().time.toString())
+        val reference = SetUserInfo.storage.reference.child("Profile").child(Date().time.toString())
         reference.putFile(selectedImage).addOnCompleteListener { uploadTask ->
             if (uploadTask.isSuccessful) {
                 reference.downloadUrl.addOnSuccessListener { downloadUri ->
@@ -183,40 +160,9 @@ class ProfileActivity : AppCompatActivity(), SetUpFirebase, View.OnClickListener
             }
         }
 
-//
-//        val reference = storage.reference.child("Profile").child(Date().time.toString())
-//        reference.putFile(selectedImage).addOnCompleteListener {
-//            if (it.isSuccessful) {
-//                reference.downloadUrl.addOnSuccessListener { task ->
-//                    lifecycleScope.launch {
-//                        uploadInfo(task.toString())
-//                    }
-//                }
-//            } else {
-//                val uid = auth.uid.toString()
-//                val na = binding.nameProfile.text.toString()
-//                val about = binding.statusProfile.text.toString()
-//                val user = UserProfile(
-//                    uid,
-//                    na,
-//                    about,
-//                    "No Image"
-//                )
-//                // Call retrieveUserData before uploading user data
-//                retrieveUserData()
-//                database.reference.child("users").child(uid).setValue(user)
-//                    .addOnCanceledListener {
-//                        val intent = Intent(this@ProfileActivity, HomeActivity::class.java)
-//                        startActivity(intent)
-//                        finish()
-//                    }
-//            }
-//
-//        }
     }
-
     private suspend fun saveUserProfile(user: UserProfile) = withContext(Dispatchers.IO) {
-        currentUserDocRef.set(user)
+        SetUserInfo.currentUserDocRef.set(user)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this@ProfileActivity, "Data inserted", Toast.LENGTH_SHORT).show()
@@ -232,28 +178,11 @@ class ProfileActivity : AppCompatActivity(), SetUpFirebase, View.OnClickListener
             }
     }
 
-    suspend fun uploadInfo(imageUri: String) = withContext((Dispatchers.IO)) {
-        val user = UserProfile(
-            auth.uid.toString(),
-            binding.nameProfile.text.toString(),
-            binding.statusProfile.text.toString(),
-            imageUri
-        )
-        database.reference.child("users")
-            .child(auth.uid.toString())
-            .setValue(user)
-            .addOnCompleteListener {
-                Toast.makeText(this@ProfileActivity, "Data  inserted", Toast.LENGTH_SHORT)
-                    .show()
-                startActivity(Intent(this@ProfileActivity, HomeActivity::class.java))
-                finish()
-            }
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (data != null) {
             if (data.data != null) {
+                binding.progressProfile.visibility = View.VISIBLE
                 /*this code compress image
                 * save image in firebase realtime*/
                 binding.imageProfile.setImageURI(data.data)
@@ -268,7 +197,8 @@ class ProfileActivity : AppCompatActivity(), SetUpFirebase, View.OnClickListener
                     val userMap = mutableMapOf<String, Any>()
                     userMap["name"] = userName
                     userMap["Pictures"] = path
-                    currentUserDocRef.update(userMap)
+
+                    SetUserInfo.currentUserDocRef.update(userMap)
 
                 }
 
@@ -282,7 +212,7 @@ class ProfileActivity : AppCompatActivity(), SetUpFirebase, View.OnClickListener
                             val filePath = uri.toString()
                             val obj = HashMap<String, Any>()
                             obj["image"] = filePath
-                            database.reference.child("users")
+                            SetUserInfo.database.reference.child("users")
                                 .child(FirebaseAuth.getInstance().uid!!).updateChildren(obj)
                                 .addOnSuccessListener { }
                         }
@@ -301,10 +231,11 @@ class ProfileActivity : AppCompatActivity(), SetUpFirebase, View.OnClickListener
         onSuccess: (imagePath: String) -> Unit
     ) {
         val ref =
-            currentUserStorageRef.child("ProfilePictures/${UUID.nameUUIDFromBytes(selectedImageByte)}")
+            SetUserInfo.currentUserStorageRef.child("ProfilePictures/${UUID.nameUUIDFromBytes(selectedImageByte)}")
         ref.putBytes(selectedImageByte).addOnCompleteListener {
             if (it.isSuccessful) {
                 onSuccess(ref.path)
+                binding.progressProfile.visibility = View.GONE
             } else {
                 Toast.makeText(
                     this@ProfileActivity,
@@ -315,48 +246,31 @@ class ProfileActivity : AppCompatActivity(), SetUpFirebase, View.OnClickListener
         }
     }
 
-//    private fun getUserInfo(onComplete: (UserProfile) -> Unit) {
-//        currentUserDocRef.get().addOnSuccessListener {
-//            onComplete(it.toObject(UserProfile::class.java)!!)
-//            user?.let { onComplete(it) }
-//        }
+//    fun retrieveUserData() {
+//        val uid = auth.uid
+//        val dbRef = database.reference.child("users").child(auth.uid!!)
+//        dbRef.addValueEventListener(object : ValueEventListener {
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//                val user = snapshot.getValue(UserProfile::class.java)
+//                if (snapshot.exists()) {
+//                    user?.let {
+//                        val name = user.name
+//                        val status = user.status
+//                        val image = user.imageUrl
+//                        // Use the retrieved data as needed
+//                        // For example, you can update the UI with the retrieved values
+//                        binding.nameProfile.setText(name)
+//                        binding.statusProfile.setText(status)
+//                        Glide.with(this@ProfileActivity).load(image).into(binding.imageProfile)
+//                    }
+//                }
+//            }
+//
+//            override fun onCancelled(error: DatabaseError) {
+//            }
+//
+//        })
 //    }
-
-
-    private fun getUserInfo(onComplete: (UserProfile) -> Unit) {
-        currentUserDocRef.get().addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot.exists()) {
-                val user = documentSnapshot.toObject(UserProfile::class.java)
-                user?.let { onComplete(it) }
-            }
-        }
-    }
-
-    fun retrieveUserData() {
-        val uid = auth.uid
-        val dbRef = database.reference.child("users").child(auth.uid!!)
-        dbRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val user = snapshot.getValue(UserProfile::class.java)
-                if (snapshot.exists()) {
-                    user?.let {
-                        val name = user.name
-                        val status = user.status
-                        val image = user.imageUrl
-                        // Use the retrieved data as needed
-                        // For example, you can update the UI with the retrieved values
-                        binding.nameProfile.setText(name)
-                        binding.statusProfile.setText(status)
-                        Glide.with(this@ProfileActivity).load(image).into(binding.imageProfile)
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-            }
-
-        })
-    }
 
 
 }

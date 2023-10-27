@@ -10,54 +10,25 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.holecode.blabla.R
 import com.holecode.blabla.databinding.FragmentSettingBinding
-import com.holecode.blabla.pojo.User
-import com.holecode.blabla.pojo.UserProfile
 import com.holecode.blabla.setting.AccountActivity
 import com.holecode.blabla.setting.ProfileActivity
-import com.holecode.blabla.setting.SetUpFirebase
+import com.holecode.blabla.setting.SetUserInfo
 
-class SettingFragment : Fragment() ,SetUpFirebase{
-
-
-    override val auth: FirebaseAuth
-            by lazy { FirebaseAuth.getInstance() }
-    override val firebaseStoreInstance: FirebaseFirestore
-            by lazy { FirebaseFirestore.getInstance() }
-    override val database: FirebaseDatabase
-            by lazy { FirebaseDatabase.getInstance() }
-    override val storage: FirebaseStorage
-            by lazy { FirebaseStorage.getInstance() }
+class SettingFragment : Fragment() {
 
     private lateinit var bindingFragmentSetting: FragmentSettingBinding
 
     private lateinit var userName: String
     private lateinit var userstatus: String
 
-    private val currentUserDocRef: DocumentReference
-        get() = firebaseStoreInstance.collection("users")
-            .document(auth.currentUser?.uid.toString())
-
-    private val currentUserStorageRef: StorageReference
-        get() = storage.reference.child(FirebaseAuth.getInstance().currentUser?.uid.toString())
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
         }
 
-        getUserInfo { user ->
+        SetUserInfo.getUserInfo { user ->
             userName = user.name
             userstatus = user.status
             bindingFragmentSetting.settingName.setText(userName)
@@ -85,9 +56,6 @@ class SettingFragment : Fragment() ,SetUpFirebase{
         bindingFragmentSetting =
             DataBindingUtil.inflate(inflater, R.layout.fragment_setting, container, false)
         return bindingFragmentSetting.root
-
-
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -104,14 +72,5 @@ class SettingFragment : Fragment() ,SetUpFirebase{
             startActivity(Intent(requireContext(), AccountActivity::class.java))
         }
     }
-    private fun getUserInfo(onComplete: (UserProfile) -> Unit) {
-        currentUserDocRef.get().addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot.exists()) {
-                val user = documentSnapshot.toObject(UserProfile::class.java)
-                user?.let { onComplete(it) }
-            }
-        }
-    }
-
 
 }

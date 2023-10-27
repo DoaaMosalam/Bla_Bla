@@ -19,14 +19,10 @@ import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.holecode.blabla.R
 import com.holecode.blabla.databinding.ActivityLoginBinding
-import com.holecode.blabla.setting.SetUpFirebase
+import com.holecode.blabla.setting.SetUserInfo
 import com.holecode.blabla.util.HomeActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,7 +31,7 @@ import kotlinx.coroutines.withContext
 
 const val REQUEST_CODE_SIGN_IN = 0
 
-class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
+class LoginActivity : AppCompatActivity(), TextWatcher {
     private lateinit var binding: ActivityLoginBinding
     lateinit var authManager: AuthManager
     private lateinit var callbackManager: CallbackManager
@@ -94,19 +90,6 @@ class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
         }
     }
 
-    // initialization Firebase (auth,Database,Storage.Store)
-    override val auth: FirebaseAuth by lazy {
-        FirebaseAuth.getInstance()
-    }
-    override val firebaseStoreInstance: FirebaseFirestore by lazy {
-        FirebaseFirestore.getInstance()
-    }
-    override val database: FirebaseDatabase by lazy {
-        FirebaseDatabase.getInstance()
-    }
-    override val storage: FirebaseStorage by lazy {
-        FirebaseStorage.getInstance()
-    }
 
     override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
     override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -212,7 +195,7 @@ class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
         withContext(Dispatchers.IO) {
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
             try {
-                auth.signInWithCredential(credential).await()
+                SetUserInfo.auth.signInWithCredential(credential).await()
                 Result.Success(true)
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -232,13 +215,9 @@ class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
         }
         LoginManager.getInstance()
             .registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
-                override fun onCancel() {
+                override fun onCancel() {}
 
-                }
-
-                override fun onError(error: FacebookException) {
-
-                }
+                override fun onError(error: FacebookException) {}
 
                 override fun onSuccess(result: LoginResult) {
                     navigateToHomePage()
@@ -278,10 +257,6 @@ class LoginActivity : AppCompatActivity(), TextWatcher, SetUpFirebase {
     //Add method to start home page when user finish auth.
     override fun onStart() {
         super.onStart()
-        val user = authManager.auth.currentUser
-        if (user!=null){
-            navigateToHomePage()
-        }
-
+        navigateToHomePage()
     }
 }

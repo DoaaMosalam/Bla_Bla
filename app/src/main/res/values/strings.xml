@@ -26,6 +26,7 @@
     <string name="profile_status">Status</string>
     <string name="profile_btn_done">Done</string>
     <string name="or_loging_with">ــــــــــــــــــ or Loging with ــــــــــــــــــ</string>
+    <string name="Profile">profile</string>
 
 
 </resources>
