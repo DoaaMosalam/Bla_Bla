@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.firestore.DocumentReference
 import com.holecode.blabla.pojo.User
-import com.holecode.blabla.setting.SetUserInfo
+import com.holecode.blabla.setting.SetUserFirebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,13 +18,13 @@ import kotlinx.coroutines.withContext
 class AuthManager : AppCompatActivity() {
 
     private val currentUserDocRef: DocumentReference
-        get() = SetUserInfo.firebaseStoreInstance.document("users/${SetUserInfo.auth.currentUser?.uid.toString()}")
+        get() = SetUserFirebase.firebaseStoreInstance.document("users/${SetUserFirebase.auth.currentUser?.uid.toString()}")
 
     //Add a method to register a new user
     suspend fun registerUser(email: String, password: String): Result<Boolean> =
         withContext(Dispatchers.IO) {
             try {
-                SetUserInfo.auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+                SetUserFirebase.auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
                     val newUser = User(email,password)
                     currentUserDocRef.set(newUser)
                     if (task.isSuccessful) {
@@ -60,7 +60,7 @@ class AuthManager : AppCompatActivity() {
 
     // add a method to  Send email verification.
     suspend fun sendEmailVerification() {
-        val user = SetUserInfo.auth.currentUser
+        val user = SetUserFirebase.auth.currentUser
         try {
             user?.sendEmailVerification()?.await()
             if (user?.isEmailVerified == true) {
@@ -76,7 +76,7 @@ class AuthManager : AppCompatActivity() {
     suspend fun forgetPassword(email: String): Result<Boolean> =
         withContext(Dispatchers.IO) {
             try {
-                SetUserInfo.auth.sendPasswordResetEmail(email)
+                SetUserFirebase.auth.sendPasswordResetEmail(email)
                 when (val result = forgetPassword(email)) {
                     is Result.Success -> {
                         val message = result.toString()

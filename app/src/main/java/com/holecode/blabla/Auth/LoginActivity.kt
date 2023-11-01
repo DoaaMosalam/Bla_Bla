@@ -22,7 +22,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.GoogleAuthProvider
 import com.holecode.blabla.R
 import com.holecode.blabla.databinding.ActivityLoginBinding
-import com.holecode.blabla.setting.SetUserInfo
+import com.holecode.blabla.setting.SetUserFirebase
 import com.holecode.blabla.util.HomeActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -195,11 +195,10 @@ class LoginActivity : AppCompatActivity(), TextWatcher {
         withContext(Dispatchers.IO) {
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
             try {
-                SetUserInfo.auth.signInWithCredential(credential).await()
+                SetUserFirebase.auth.signInWithCredential(credential).await()
                 Result.Success(true)
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-//                    Toast.makeText(this@AuthManager, e.message, Toast.LENGTH_SHORT).show()
                     Result.Error(e)
                 }
             }
@@ -255,8 +254,8 @@ class LoginActivity : AppCompatActivity(), TextWatcher {
 
     //==================================================================================================
     //Add method to start home page when user finish auth.
-    override fun onStart() {
-        super.onStart()
-        navigateToHomePage()
-    }
+//    override fun onStart() {
+//        super.onStart()
+//        navigateToHomePage()
+//    }
 }

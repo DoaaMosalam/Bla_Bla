@@ -31,6 +31,7 @@
             tools:layout_editor_absoluteX="0dp" />
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chat_recyclerView"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"

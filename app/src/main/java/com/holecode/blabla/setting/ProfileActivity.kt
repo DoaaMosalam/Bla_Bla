@@ -16,20 +16,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.holecode.blabla.R
 
 import com.holecode.blabla.databinding.ActivityProfileBinding
-import com.holecode.blabla.glide.MyMessengerGlide
-import com.holecode.blabla.pojo.User
 import com.holecode.blabla.pojo.UserProfile
 import com.holecode.blabla.util.HomeActivity
 import kotlinx.coroutines.Dispatchers
@@ -71,8 +61,8 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
 
-
-        SetUserInfo.getUserInfo { user ->
+//retrieve name,status, and image from fireStore database
+        SetUserFirebase.getUserInfo { user ->
             userName = user.name
             userstatus = user.status
             binding.nameProfile.setText(userName)
@@ -111,7 +101,7 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
             if (name.isEmpty()) {
                 binding.nameProfile.error = "Please type your name"
             } else {
-                lifecycleScope.launch(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.IO) {
                     uploadData()
 
                 }
@@ -135,15 +125,14 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
         }
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
-
     private suspend fun uploadData() = withContext(Dispatchers.IO) {
-        val uid = SetUserInfo.auth.currentUser?.uid.toString()
+        val uid = SetUserFirebase.auth.currentUser?.uid.toString()
         val name = binding.nameProfile.text.toString()
         val status = binding.statusProfile.text.toString()
 
         val user = UserProfile(uid, name, status, "No Image")
 
-        val reference = SetUserInfo.storage.reference.child("Profile").child(Date().time.toString())
+        val reference = SetUserFirebase.storage.reference.child("Profile").child(Date().time.toString())
         reference.putFile(selectedImage).addOnCompleteListener { uploadTask ->
             if (uploadTask.isSuccessful) {
                 reference.downloadUrl.addOnSuccessListener { downloadUri ->
@@ -162,7 +151,7 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
 
     }
     private suspend fun saveUserProfile(user: UserProfile) = withContext(Dispatchers.IO) {
-        SetUserInfo.currentUserDocRef.set(user)
+        SetUserFirebase.currentUserDocRef.set(user)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this@ProfileActivity, "Data inserted", Toast.LENGTH_SHORT).show()
@@ -185,34 +174,31 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
                 binding.progressProfile.visibility = View.VISIBLE
                 /*this code compress image
                 * save image in firebase realtime*/
-                binding.imageProfile.setImageURI(data.data)
-                val selectedImagePath = data.data
-                val selectedImageBmp =
-                    MediaStore.Images.Media.getBitmap(this.contentResolver, selectedImagePath)
-                val outPutStream = ByteArrayOutputStream()
-                selectedImageBmp.compress(Bitmap.CompressFormat.JPEG, 20, outPutStream)
-                val selectedImageByte = outPutStream.toByteArray()
-
-                UploadProfileImage(selectedImageByte) { path ->
-                    val userMap = mutableMapOf<String, Any>()
-                    userMap["name"] = userName
-                    userMap["Pictures"] = path
-
-                    SetUserInfo.currentUserDocRef.update(userMap)
-
-                }
-
+//                binding.imageProfile.setImageURI(data.data)
+//                val selectedImagePath = data.data
+//                val selectedImageBmp =
+//                    MediaStore.Images.Media.getBitmap(this.contentResolver, selectedImagePath)
+//                val outPutStream = ByteArrayOutputStream()
+//                selectedImageBmp.compress(Bitmap.CompressFormat.JPEG, 20, outPutStream)
+//                val selectedImageByte = outPutStream.toByteArray()
+//
+//                UploadProfileImage(selectedImageByte) { path ->
+//                    val userMap = mutableMapOf<String, Any>()
+//                    userMap["name"] = userName
+//                    userMap["Pictures"] = path
+//
+//                    SetUserFirebase.currentUserDocRef.update(userMap)
+//                }
                 val uri = data.data //filePath
-                val storage = FirebaseStorage.getInstance()
                 val time = Date().time
-                val reference = storage.reference.child("Profile").child(time.toString() + "")
+                val reference = SetUserFirebase.currentUserStorageRef.child("Profile").child(time.toString() + "")
                 reference.putFile(uri!!).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         reference.downloadUrl.addOnCompleteListener { uri ->
                             val filePath = uri.toString()
                             val obj = HashMap<String, Any>()
                             obj["image"] = filePath
-                            SetUserInfo.database.reference.child("users")
+                            SetUserFirebase.database.reference.child("users")
                                 .child(FirebaseAuth.getInstance().uid!!).updateChildren(obj)
                                 .addOnSuccessListener { }
                         }
@@ -231,7 +217,7 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
         onSuccess: (imagePath: String) -> Unit
     ) {
         val ref =
-            SetUserInfo.currentUserStorageRef.child("ProfilePictures/${UUID.nameUUIDFromBytes(selectedImageByte)}")
+            SetUserFirebase.currentUserStorageRef.child("ProfilePictures/${UUID.nameUUIDFromBytes(selectedImageByte)}")
         ref.putBytes(selectedImageByte).addOnCompleteListener {
             if (it.isSuccessful) {
                 onSuccess(ref.path)
@@ -245,32 +231,4 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
     }
-
-//    fun retrieveUserData() {
-//        val uid = auth.uid
-//        val dbRef = database.reference.child("users").child(auth.uid!!)
-//        dbRef.addValueEventListener(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                val user = snapshot.getValue(UserProfile::class.java)
-//                if (snapshot.exists()) {
-//                    user?.let {
-//                        val name = user.name
-//                        val status = user.status
-//                        val image = user.imageUrl
-//                        // Use the retrieved data as needed
-//                        // For example, you can update the UI with the retrieved values
-//                        binding.nameProfile.setText(name)
-//                        binding.statusProfile.setText(status)
-//                        Glide.with(this@ProfileActivity).load(image).into(binding.imageProfile)
-//                    }
-//                }
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//            }
-//
-//        })
-//    }
-
-
 }

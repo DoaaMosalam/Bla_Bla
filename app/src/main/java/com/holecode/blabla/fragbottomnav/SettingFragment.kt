@@ -14,7 +14,7 @@ import com.holecode.blabla.R
 import com.holecode.blabla.databinding.FragmentSettingBinding
 import com.holecode.blabla.setting.AccountActivity
 import com.holecode.blabla.setting.ProfileActivity
-import com.holecode.blabla.setting.SetUserInfo
+import com.holecode.blabla.setting.SetUserFirebase
 
 class SettingFragment : Fragment() {
 
@@ -28,7 +28,7 @@ class SettingFragment : Fragment() {
         arguments?.let {
         }
 
-        SetUserInfo.getUserInfo { user ->
+        SetUserFirebase.getUserInfo { user ->
             userName = user.name
             userstatus = user.status
             bindingFragmentSetting.settingName.setText(userName)

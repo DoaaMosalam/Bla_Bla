@@ -5,10 +5,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.holecode.blabla.Auth.LoginActivity
 import com.holecode.blabla.databinding.ActivityAccountBinding
 import kotlinx.coroutines.launch
@@ -51,9 +47,9 @@ class AccountActivity : AppCompatActivity() {
 
     private fun signOutUser() {
         lifecycleScope.launch {
-            val user = SetUserInfo.auth.currentUser?.uid
+            val user = SetUserFirebase.auth.currentUser?.uid
             if (user != null) {
-                SetUserInfo.auth.signOut()
+                SetUserFirebase.auth.signOut()
             } else {
                 navigateToHomePage()
             }

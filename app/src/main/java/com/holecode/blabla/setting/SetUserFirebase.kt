@@ -6,9 +6,10 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.holecode.blabla.chat.ChatUser
 import com.holecode.blabla.pojo.UserProfile
 
-object SetUserInfo {
+object SetUserFirebase {
      val auth: FirebaseAuth by lazy {
         FirebaseAuth.getInstance()
     }
@@ -30,10 +31,20 @@ object SetUserInfo {
      val currentUserStorageRef: StorageReference
         get() = storage.reference.child(FirebaseAuth.getInstance().currentUser?.uid.toString())
 
+    /*Method return info from FireStore Database
+    * used UserProfile.class*/
     fun getUserInfo(onComplete: (UserProfile) -> Unit) {
         currentUserDocRef.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()) {
                 val user = documentSnapshot.toObject(UserProfile::class.java)
+                user?.let { onComplete(it) }
+            }
+        }
+    }
+    fun getUserChat(onComplete: (ChatUser) -> Unit) {
+        currentUserDocRef.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val user = documentSnapshot.toObject(ChatUser::class.java) // Change to ChatUser
                 user?.let { onComplete(it) }
             }
         }

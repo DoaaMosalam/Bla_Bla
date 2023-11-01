@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".chat.ChatActivity">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar_chat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="?attr/actionBarTheme"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+<!--@tools:sample/avatars-->
+            <ImageView
+                android:id="@+id/back_image"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/arrow_back_ios"
+                app:layout_constraintBottom_toBottomOf="@+id/toolbar_chat"
+                app:layout_constraintEnd_toEndOf="@+id/toolbar_chat"
+                app:layout_constraintHorizontal_bias="0.102"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/toolbar_chat"
+                />
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/chat_image"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/person_24"
+                app:layout_constraintBottom_toBottomOf="@+id/toolbar_chat"
+                app:layout_constraintEnd_toEndOf="@+id/toolbar_chat"
+                app:layout_constraintHorizontal_bias="0.102"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/toolbar_chat"
+                />
+            <TextView
+                android:id="@+id/txt_nameUserChat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:textSize="13sp"
+                android:text="user name"
+                android:textStyle="bold|normal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.119"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.086" />
+
+
+        </androidx.appcompat.widget.Toolbar>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

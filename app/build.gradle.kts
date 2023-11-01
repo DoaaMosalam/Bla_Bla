@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+
 }
 
 android {
@@ -44,7 +45,7 @@ android {
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
@@ -81,11 +82,8 @@ dependencies {
     implementation("io.github.amrdeveloper:reactbutton:2.1.0")
 //View Model
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-
-    //groupie library
-    implementation ("com.xwray:groupie:2.1.0")
-    implementation ("com.xwray:groupie-viewbinding:2.9.0")
-    implementation("com.xwray:groupie-kotlin-android-extensions:2.0.3")
+    //grouipe
+    implementation ("com.github.lisawray.groupie:groupie:2.9.0")
     implementation ("com.github.lisawray.groupie:groupie-databinding:2.9.0")
-
+    implementation ("com.xwray:groupie-kotlin-android-extensions:2.9.0")
 }
