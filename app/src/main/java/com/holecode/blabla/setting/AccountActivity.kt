@@ -21,20 +21,21 @@ class AccountActivity : AppCompatActivity() {
         }
         /*handle button back by toolbar*/
         val toolbar = binding.txtAccount
-        toolbar.text="Account"
+        toolbar.text = "Account"
         setSupportActionBar(binding.toolbarProfile)
-        supportActionBar?.title=""
+        supportActionBar?.title = ""
         setSupportActionBar(binding.toolbarProfile)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
     } //end onCreate
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId){
-            android.R.id.home ->{
+        return when (item.itemId) {
+            android.R.id.home -> {
                 finish()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }

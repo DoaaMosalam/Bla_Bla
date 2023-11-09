@@ -24,15 +24,16 @@ class AuthManager : AppCompatActivity() {
     suspend fun registerUser(email: String, password: String): Result<Boolean> =
         withContext(Dispatchers.IO) {
             try {
-                SetUserFirebase.auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-                    val newUser = User(email,password)
-                    currentUserDocRef.set(newUser)
-                    if (task.isSuccessful) {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            sendEmailVerification()
+                SetUserFirebase.auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        val newUser = User(email, password)
+                        currentUserDocRef.set(newUser)
+                        if (task.isSuccessful) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                sendEmailVerification()
+                            }
                         }
-                    }
-                }.await()
+                    }.await()
 
                 when (val result = registerUser(email, password)) {
                     is Result.Success -> {

@@ -62,7 +62,7 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging-ktx:23.3.1")
     implementation("com.google.firebase:firebase-analytics-ktx:21.4.0")
     // FirebaseUI for Cloud Storage
-    implementation ("com.firebaseui:firebase-ui-storage:8.0.2")
+    implementation("com.firebaseui:firebase-ui-storage:8.0.2")
 
     // Import the BoM for the Firebase platform
     implementation(platform("com.google.firebase:firebase-bom:32.2.3"))
@@ -83,7 +83,8 @@ dependencies {
 //View Model
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     //grouipe
-    implementation ("com.github.lisawray.groupie:groupie:2.9.0")
-    implementation ("com.github.lisawray.groupie:groupie-databinding:2.9.0")
-    implementation ("com.xwray:groupie-kotlin-android-extensions:2.9.0")
+    implementation("com.github.lisawray.groupie:groupie:2.9.0")
+    implementation("com.github.lisawray.groupie:groupie-databinding:2.9.0")
+    implementation("com.xwray:groupie-kotlin-android-extensions:2.9.0")
+
 }

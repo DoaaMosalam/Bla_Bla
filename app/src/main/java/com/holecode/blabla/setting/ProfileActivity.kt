@@ -3,10 +3,8 @@ package com.holecode.blabla.setting
 
 import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -16,18 +14,14 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.storage.FirebaseStorage
 import com.holecode.blabla.R
-
 import com.holecode.blabla.databinding.ActivityProfileBinding
 import com.holecode.blabla.pojo.UserProfile
 import com.holecode.blabla.util.HomeActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 import java.util.Date
-import java.util.UUID
 
 
 class ProfileActivity : AppCompatActivity(), View.OnClickListener {
@@ -37,8 +31,10 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var userName: String
     private lateinit var userstatus: String
     private lateinit var dialog: AlertDialog.Builder
+
     // Constants
     private val PICK_IMAGE_REQUEST = 1
+
 
     //=============================================================================================
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,21 +91,27 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
     //=============================================================================================
     //This method is setOnClickListener.
     override fun onClick(view: View?) {
-        if (view != null && view.id == R.id.btn_done) {
-            val name = binding.nameProfile.text.toString()
-            val status = binding.statusProfile.text.toString()
-            if (name.isEmpty()) {
-                binding.nameProfile.error = "Please type your name"
-            } else {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    uploadData()
-
+        if (view != null) {
+            when (view.id) {
+                R.id.btn_done -> {
+                    val name = binding.nameProfile.text.toString()
+                    val status = binding.statusProfile.text.toString()
+                    if (name.isEmpty()) {
+                        binding.nameProfile.error = "Please type your name"
+                    } else {
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            uploadData()
+                        }
+                        startActivity(Intent(this@ProfileActivity, HomeActivity::class.java))
+//                        finish()
+                    }
                 }
-                startActivity(Intent(this@ProfileActivity, HomeActivity::class.java))
-            }
-        } else if (view != null && view.id == R.id.image_profile) {
-            lifecycleScope.launch(Dispatchers.Main) {
-                OpenImageChooser()
+
+                R.id.image_profile -> {
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        OpenImageChooser()
+                    }
+                }
             }
         }
     }
@@ -125,14 +127,14 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
         }
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
+
     private suspend fun uploadData() = withContext(Dispatchers.IO) {
         val uid = SetUserFirebase.auth.currentUser?.uid.toString()
         val name = binding.nameProfile.text.toString()
         val status = binding.statusProfile.text.toString()
 
         val user = UserProfile(uid, name, status, "No Image")
-
-        val reference = SetUserFirebase.storage.reference.child("Profile").child(Date().time.toString())
+        val reference = SetUserFirebase.currentUserStorageRef
         reference.putFile(selectedImage).addOnCompleteListener { uploadTask ->
             if (uploadTask.isSuccessful) {
                 reference.downloadUrl.addOnSuccessListener { downloadUri ->
@@ -148,8 +150,8 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
 
             }
         }
-
     }
+
     private suspend fun saveUserProfile(user: UserProfile) = withContext(Dispatchers.IO) {
         SetUserFirebase.currentUserDocRef.set(user)
             .addOnCompleteListener { task ->
@@ -174,24 +176,9 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
                 binding.progressProfile.visibility = View.VISIBLE
                 /*this code compress image
                 * save image in firebase realtime*/
-//                binding.imageProfile.setImageURI(data.data)
-//                val selectedImagePath = data.data
-//                val selectedImageBmp =
-//                    MediaStore.Images.Media.getBitmap(this.contentResolver, selectedImagePath)
-//                val outPutStream = ByteArrayOutputStream()
-//                selectedImageBmp.compress(Bitmap.CompressFormat.JPEG, 20, outPutStream)
-//                val selectedImageByte = outPutStream.toByteArray()
-//
-//                UploadProfileImage(selectedImageByte) { path ->
-//                    val userMap = mutableMapOf<String, Any>()
-//                    userMap["name"] = userName
-//                    userMap["Pictures"] = path
-//
-//                    SetUserFirebase.currentUserDocRef.update(userMap)
-//                }
                 val uri = data.data //filePath
                 val time = Date().time
-                val reference = SetUserFirebase.currentUserStorageRef.child("Profile").child(time.toString() + "")
+                val reference = SetUserFirebase.currentUserStorageRef
                 reference.putFile(uri!!).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         reference.downloadUrl.addOnCompleteListener { uri ->
@@ -211,24 +198,4 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-
-    private fun UploadProfileImage(
-        selectedImageByte: ByteArray,
-        onSuccess: (imagePath: String) -> Unit
-    ) {
-        val ref =
-            SetUserFirebase.currentUserStorageRef.child("ProfilePictures/${UUID.nameUUIDFromBytes(selectedImageByte)}")
-        ref.putBytes(selectedImageByte).addOnCompleteListener {
-            if (it.isSuccessful) {
-                onSuccess(ref.path)
-                binding.progressProfile.visibility = View.GONE
-            } else {
-                Toast.makeText(
-                    this@ProfileActivity,
-                    "Error:${it.exception?.message.toString()}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-    }
 }

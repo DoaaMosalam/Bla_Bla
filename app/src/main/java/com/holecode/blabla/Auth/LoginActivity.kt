@@ -254,8 +254,11 @@ class LoginActivity : AppCompatActivity(), TextWatcher {
 
     //==================================================================================================
     //Add method to start home page when user finish auth.
-//    override fun onStart() {
-//        super.onStart()
-//        navigateToHomePage()
-//    }
+    override fun onStart() {
+        super.onStart()
+        val user = SetUserFirebase.auth.currentUser?.uid.toString()
+        if (user != null) {
+            navigateToHomePage()
+        }
+    }
 }
